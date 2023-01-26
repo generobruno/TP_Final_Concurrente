@@ -131,24 +131,25 @@ public class Petrinet extends PetrinetObject {
         return arc;
     }
 
+    /**
+     * Método AssignIncidence
+     * Recorre la matriz de izquierda a derecha (columna 0 a cantT) y de
+     * arriba hacia abajo (fila 0 a cantP).
+     * FILAS        = PLAZAS        = i
+     * COLUMNAS     = TRANSICIONES  = j
+     * si [i][j] = 1 -> TRANSITION_TO_PLACE
+     * si [i][j] = -1 -> PLACE_TO_TRANSITION
+     */
     public void AssignIncidence(int[][] incidenceMatrix, int cantP, int cantT) {
-        /**
-         * Recorrer la matriz de izq a der (col 0 a N) y de
-         * arriba hacia abajo (fil 0 a M).
-         * FILAS = PLAZAS = i
-         * COLUMNAS = TRANSICIONES = j
-         * si [i][j] = 1 -> TRANSITION_TO_PLACE
-         * si [i][j] = -1 -> PLACE_TO_TRANSITION
-         */
-        int cantArcs = 0;
+        int cantArcs = 1;
 
-        for(int i = 0; i < cantP; i++) {
-            for(int j = 0; j < cantT; j++) {
+        for(int i = 0; i < cantP-1; i++) {
+            for(int j = 0; j < cantT-1; j++) {
                 if(incidenceMatrix[i][j] == 1) {
-                    arcs.add(arc("Arc" + cantArcs, places.get(i), transitions.get(j)));
+                    arcs.add(arc("Arc" + cantArcs, transitions.get(j), places.get(i)));
                     cantArcs++;
                 } else if (incidenceMatrix[i][j] == -1) {
-                    arcs.add(arc("Arc" + cantArcs, transitions.get(j), places.get(i)));
+                    arcs.add(arc("Arc" + cantArcs, places.get(i), transitions.get(j)));
                     cantArcs++;
                 }
             }
@@ -219,6 +220,36 @@ public class Petrinet extends PetrinetObject {
      */
     public List<InhibitorArc> getInhibitors() {
         return inhibitors;
+    }
+
+    /**
+     * Método generatePlaces
+     * Crea la cantidad de plazas determinadas, junto con
+     * sus tokens
+     * @param initialMarks Vector con los tokens iniciales
+     * @param cantP Cantidad de plazas a crear
+     * @param pn Red de Petri
+     */
+    public void generatePlaces(int[] initialMarks, int cantP, Petrinet pn){
+        int cant = 1;
+        for(int i = 1; i < (cantP+1); i++) {
+            pn.place("P" + cant, initialMarks[i-1]);
+            cant++;
+        }
+    }
+
+    /**
+     * Método generateTransitions
+     * Crea la cantidad de transiciones determinada
+     * @param cantT Cantidad de transiciones
+     * @param pn Red de Petri
+     */
+    public void generateTransitions(int cantT, Petrinet pn){
+        int cant = 1;
+        for(int i = 1; i < (cantT+1); i++) {
+            pn.transition("T" + cant);
+            cant++;
+        }
     }
 
 }

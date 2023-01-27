@@ -17,6 +17,10 @@ public class Petrinet extends PetrinetObject {
     private List<Arc> arcs                  = new ArrayList<Arc>();
     // Lista de arcos inhibidores
     private List<InhibitorArc> inhibitors   = new ArrayList<InhibitorArc>();
+    // Matriz de Incidencia
+    private int[][] incidenceMatrix;
+    // Matriz de Marcado
+    private int[] markings;
 
     private static final String nl = "\n";
 
@@ -155,6 +159,7 @@ public class Petrinet extends PetrinetObject {
             }
         }
 
+        this.incidenceMatrix = incidenceMatrix;
     }
 
     /**
@@ -236,6 +241,8 @@ public class Petrinet extends PetrinetObject {
             pn.place("P" + cant, initialMarks[i-1]);
             cant++;
         }
+
+        this.markings = initialMarks;
     }
 
     /**
@@ -310,6 +317,64 @@ public class Petrinet extends PetrinetObject {
 
         // Asigna la matriz de incidencia
         pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+    }
+
+    /**
+     * Método printIncidence
+     * Imprime por consola la matriz de incidencia de la Red
+     */
+    public void printIncidence() {
+        System.out.printf("------------- Incidence ---------------\n");
+
+        System.out.printf("  ");
+
+        for(int i = 0; i < transitions.size(); i++) {
+            System.out.printf( "%s ", transitions.get(i).getName());
+        }
+
+        System.out.println("");
+
+        for(int i = 0; i < places.size(); i++) {
+            System.out.printf( "%s ", places.get(i).getName());
+            for(int j = 0; j < transitions.size(); j++) {
+                System.out.printf(" %d ",incidenceMatrix[i][j]);
+            }
+            System.out.println("");
+        }
+    }
+
+    /**
+     * Método getIncidenceMatrix
+     * @return Matriz de incidencia
+     */
+    public int[][] getIncidenceMatrix() {
+        return incidenceMatrix;
+    }
+
+    /**
+     * Método printMarks
+     * Imprime el marcado de la red
+     */
+    public void printMarks() {
+        System.out.printf("------------- Marking ---------------\n");
+
+        for(int i = 0; i < places.size(); i++) {
+            System.out.printf( "%s ", places.get(i).getName());
+        }
+
+        System.out.println("");
+
+        for(int i = 0; i < places.size(); i++) {
+            System.out.printf( " %d ", markings[i] );
+        }
+    }
+
+    /**
+     * Método getMarkings
+     * @return Matriz de marcado
+     */
+    public int[] getMarkings() {
+        return markings;
     }
 
 }

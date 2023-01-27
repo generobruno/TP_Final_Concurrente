@@ -26,8 +26,12 @@ public class Test {
         pn.setPlaceName("P15", "LAST");
         pn.setTransitionName("T12","LAST");
 
+        pn.printIncidence();
+        System.out.println("");
+        pn.printMarks();
+
         // Muestra la red
-        PetrinetGUI.displayPetrinet(pn);
+        //PetrinetGUI.displayPetrinet(pn);
     }
 
 }

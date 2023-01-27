@@ -145,14 +145,13 @@ public class NetV2 {
         // Marcado inicial
         int[] initialMarks = data.getMarks("data/MarkingV2.xls", cantP);
 
-        // Crea las transiciones
-        pn.generateTransitions(cantT, pn);
+        // Crea la Red
+        pn.createNet(cantT, cantP, incidenceMatrix, initialMarks, pn);
 
-        // Crea las plazas y asigna sus tokens
-        pn.generatePlaces(initialMarks,cantP,pn);
-
-        // Asigna la matriz de incidencia
-        pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+        // Asignando Nombre a las plazas de Control
+        pn.setPlaceName("P16", "Cs1");
+        pn.setPlaceName("P17", "Cs2");
+        pn.setPlaceName("P18", "Cs3");
 
         PetrinetGUI.displayPetrinet(pn);
     }

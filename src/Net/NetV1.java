@@ -11,7 +11,8 @@ import Logic.*;
 public class NetV1 {
     public static void main(String[] args) {
 
-        /* LO DEJO POR LAS DUDAS POR AHORA
+        /*
+        // LO DEJO POR LAS DUDAS POR AHORA
         // Red de Petri
         Petrinet pn = new Petrinet("MyNet");
 
@@ -108,6 +109,8 @@ public class NetV1 {
         Arc a60 = pn.arc("a60", t8, p15);
         */
 
+
+
         // Red de Petri
         Petrinet pn = new Petrinet("MyNet");
         // Data para la red
@@ -123,14 +126,8 @@ public class NetV1 {
         // Marcado inicial
         int[] initialMarks = data.getMarks("data/MarkingV1.xls", cantP);
 
-        // Crea las transiciones
-        pn.generateTransitions(cantT, pn);
-
-        // Crea las plazas y asigna sus tokens
-        pn.generatePlaces(initialMarks,cantP,pn);
-
-        // Asigna la matriz de incidencia
-        pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+        // Crea la Red
+        pn.createNet(cantT, cantP, incidenceMatrix, initialMarks, pn);
 
         // Muestra la red
         PetrinetGUI.displayPetrinet(pn);

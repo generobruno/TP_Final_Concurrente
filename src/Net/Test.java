@@ -19,14 +19,8 @@ public class Test {
         // Marcado inicial
         int[] initialMarks = data.getMarks("data/MarkingV1.xls", cantP);
 
-        // Crea las transiciones
-        pn.generateTransitions(cantT, pn);
-
-        // Crea las plazas y asigna sus tokens
-        pn.generatePlaces(initialMarks,cantP,pn);
-
-        // Asigna la matriz de incidencia
-        pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+        // Crea la Red
+        pn.createNet(cantT, cantP, incidenceMatrix, initialMarks, pn);
 
         // Cambia el nombre de la última plaza y transición
         pn.setPlaceName("P15", "LAST");

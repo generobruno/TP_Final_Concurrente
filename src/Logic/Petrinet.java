@@ -143,8 +143,8 @@ public class Petrinet extends PetrinetObject {
     public void AssignIncidence(int[][] incidenceMatrix, int cantP, int cantT) {
         int cantArcs = 1;
 
-        for(int i = 0; i < cantP-1; i++) {
-            for(int j = 0; j < cantT-1; j++) {
+        for(int i = 0; i < cantP; i++) {
+            for(int j = 0; j < cantT; j++) {
                 if(incidenceMatrix[i][j] == 1) {
                     arcs.add(arc("Arc" + cantArcs, transitions.get(j), places.get(i)));
                     cantArcs++;
@@ -254,7 +254,8 @@ public class Petrinet extends PetrinetObject {
 
     /**
      * Método setPlaceName
-     * Cambia el nombre de una plaza
+     * Cambia el nombre de una plaza (SOLO DESPUÉS DE
+     * CREAR LA RED)
      * @param oldName Nombre antigüo
      * @param newName Nombre nuevo
      */
@@ -268,7 +269,8 @@ public class Petrinet extends PetrinetObject {
 
     /**
      * Método setTransitionName
-     * Cambia el nombre de una transición
+     * Cambia el nombre de una transición (SOLO DESPUÉS DE
+     * CREAR LA RED)
      * @param oldName Nombre antigüo
      * @param newName Nombre nuevo
      */
@@ -278,6 +280,36 @@ public class Petrinet extends PetrinetObject {
                 t.setName(newName);
             }
         }
+    }
+
+    /**
+     * Método createNet
+     * Genera la Red de Petri
+     * @param t Cantidad de Transiciones
+     * @param p Cantidad de Plazas
+     * @param incidence Matriz de Incidencia
+     * @param states Matriz de Marcado Inicial
+     * @param pn Red de Petri
+     */
+    public void createNet(int t, int p, int[][] incidence, int[] states, Petrinet pn) {
+        // Cantidad de Transiciones
+        int cantT = t;
+        // Cantidad de Plazas
+        int cantP = p;
+
+        // Matriz de Incidencia : 15 plazas (filas), 12 transiciones (columnas)
+        int[][] incidenceMatrix = incidence;
+        // Marcado inicial
+        int[] initialMarks = states;
+
+        // Crea las transiciones
+        pn.generateTransitions(cantT, pn);
+
+        // Crea las plazas y asigna sus tokens
+        pn.generatePlaces(initialMarks,cantP,pn);
+
+        // Asigna la matriz de incidencia
+        pn.AssignIncidence(incidenceMatrix, cantP, cantT);
     }
 
 }

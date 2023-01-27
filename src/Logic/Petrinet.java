@@ -252,4 +252,32 @@ public class Petrinet extends PetrinetObject {
         }
     }
 
+    /**
+     * Método setPlaceName
+     * Cambia el nombre de una plaza
+     * @param oldName Nombre antigüo
+     * @param newName Nombre nuevo
+     */
+    public void setPlaceName(String oldName, String newName) {
+        for(Place p : places) {
+            if(p.getName().equals(oldName)) {
+                p.setName(newName);
+            }
+        }
+    }
+
+    /**
+     * Método setTransitionName
+     * Cambia el nombre de una transición
+     * @param oldName Nombre antigüo
+     * @param newName Nombre nuevo
+     */
+    public void setTransitionName(String oldName, String newName) {
+        for(Transition t : transitions) {
+            if(t.getName().equals(oldName)) {
+                t.setName(newName);
+            }
+        }
+    }
+
 }

@@ -28,6 +28,10 @@ public class Test {
         // Asigna la matriz de incidencia
         pn.AssignIncidence(incidenceMatrix, cantP, cantT);
 
+        // Cambia el nombre de la última plaza y transición
+        pn.setPlaceName("P15", "LAST");
+        pn.setTransitionName("T12","LAST");
+
         // Muestra la red
         PetrinetGUI.displayPetrinet(pn);
     }

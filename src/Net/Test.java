@@ -2,6 +2,10 @@ package Net;
 
 import Data.*;
 import Logic.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Test {
     public static void main(String[] args) {
         // Red de Petri
@@ -31,7 +35,8 @@ public class Test {
         pn.printMarks();
 
         // Muestra la red
-        //PetrinetGUI.displayPetrinet(pn);
+        PetrinetGUI.displayPetrinet(pn);
+
     }
 
 }

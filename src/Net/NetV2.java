@@ -1,7 +1,9 @@
 package Net;
 
-import Data.Data;
+import Data.*;
 import Logic.*;
+
+import java.util.List;
 
 /**
  * Clase NetV2
@@ -134,6 +136,8 @@ public class NetV2 {
         Petrinet pn = new Petrinet("MyNet");
         // Data para la red
         Data data = new Data();
+        // Logger
+        Logger log = new Logger();
 
         // Cantidad de Transiciones
         int cantT = 12;
@@ -152,6 +156,9 @@ public class NetV2 {
         pn.setPlaceName("P16", "Cs1");
         pn.setPlaceName("P17", "Cs2");
         pn.setPlaceName("P18", "Cs3");
+
+        // Disparamos hasta deadlock
+        pn.fireContinuously(log);
 
         PetrinetGUI.displayPetrinet(pn);
     }

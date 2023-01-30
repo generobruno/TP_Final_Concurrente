@@ -1,5 +1,6 @@
 package Logic;
 
+import Data.Logger;
 import org.apache.poi.ss.formula.functions.T;
 
 import java.util.ArrayList;
@@ -67,10 +68,11 @@ public class Petrinet extends PetrinetObject {
         int cantT = transitions.size();
         this.enableTransitions = new int[cantT];
 
-        /* TODO, Hacer que funcione con las matrices
+        /* TODO, Hacer que funcione con las matrices?.
+            negIncidenceMatrix = Matriz de incidencia negativa
         for(int i = 0; i < cantT; i++) {
             for(int j = 0; j < places.size(); j++) {
-                if((markings[j] < incidenceMatrix[j][i]) && (incidenceMatrix[j][i] != 0)) {
+                if((markings[j] < negIncidenceMatrix[j][i]) && (negIncidenceMatrix[j][i] != 0)) {
                     this.enableTransitions[i] = 0;
                     break;
                 } else {
@@ -463,16 +465,16 @@ public class Petrinet extends PetrinetObject {
      * Método fireContinuously
      * Dispara transiciones de manera aleatoria hasta que
      * se encuentra con un deadlock y no puede disparar ninguna.
-     * @return Lista con la secuencia de Transiciones disparadas.
+     * Imprime en el log una lista con la secuencia
+     * de Transiciones disparadas.
      */
-    public List<Transition> fireContinuously() {
-        List <Transition> sequence = new ArrayList<Transition>();
+    public void fireContinuously(Logger log) {
 
         boolean deadlock = false;
         while(!deadlock) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
-            sequence.add(transitions.get(i-1));
+            log.logT(transitions.get(i-1).getName());
             fireTransition(i);
             int[] enabled = getEnableTransitions();
             int test = 0;
@@ -491,7 +493,6 @@ public class Petrinet extends PetrinetObject {
             }
         }
 
-        return sequence;
     }
 
     /**

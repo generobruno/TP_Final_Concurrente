@@ -15,6 +15,8 @@ public class Test {
         Petrinet pn = new Petrinet("MyNet");
         // Data para la red
         Data data = new Data();
+        // Logger
+        Logger log = new Logger();
 
         // Cantidad de Transiciones
         int cantT = 12;
@@ -58,13 +60,7 @@ public class Test {
         System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
         // Disparamos hasta deadlock
-        List<Transition> seq;
-        seq = pn.fireContinuously();
-
-        // Print sequence
-        for(Transition t : seq) {
-            System.out.printf("%s ",t.getName());
-        }
+        pn.fireContinuously(log);
 
         // Muestra la red
         PetrinetGUI.displayPetrinet(pn);

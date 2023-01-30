@@ -10,20 +10,12 @@ public class Monitor {
             3. Estado del sistema (Distintos valores de la matriz de marcado)
             4. Eventos del sistema (Transiciones disparadas)
         Ademas, los métodos:
-            1. fireTransition(): Debe poder disparar una transición o conjunto
-            de transiciones que le pasemos como parámetro. También se debe actualizar
-            el la matriz de marcado y el vector E.
-            2. Agregar Guardas (Ward) a las transiciones de la red. Para disparar una transición con
+            1. Agregar Guardas (Ward) a las transiciones de la red. Para disparar una transición con
             guarda, la misma debe estar sensibilizada y el valor de su guarda debe ser TRUE.
-            3. Agregar Cola de Eventos (Events) a las transiciones de la red. La cola es un contador
+            2. Agregar Cola de Eventos (Events) a las transiciones de la red. La cola es un contador
             que se incrementa al llegar un evento (?) y se decrementa cuando la transición asociada se dispara.
             Para que la transición esté sensibilizada se necesita que su cola tenga al menos 1 evento.
-            4. Luego de que esto funcione, agregar semánticas temporales [alfa_i, beta_i].
+            3. Luego de que esto funcione, agregar semánticas temporales [alfa_i, beta_i].
      */
 
-    /*
-       TODO
-        En la clase Petrinet, el disparo de las transiciones debería actualizar su
-        matriz de incidencias y de marcados, segun la ecuacion de estados.
-     */
 }

@@ -1,7 +1,11 @@
 package Logic;
 
+import org.apache.poi.ss.formula.functions.T;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Clase Petrinet.
@@ -451,9 +455,43 @@ public class Petrinet extends PetrinetObject {
             t.fire();
             // Actualiza la red
             updateNet(transition);
-        } else {
-            System.out.printf("No es posible Disparar la transición %s.\n", t.getName());
         }
+    }
+
+
+    /**
+     * Método fireContinuously
+     * Dispara transiciones de manera aleatoria hasta que
+     * se encuentra con un deadlock y no puede disparar ninguna.
+     * @return Lista con la secuencia de Transiciones disparadas.
+     */
+    public List<Transition> fireContinuously() {
+        List <Transition> sequence = new ArrayList<Transition>();
+
+        boolean deadlock = false;
+        while(!deadlock) {
+            // Disparamos transición
+            int i = ThreadLocalRandom.current().nextInt(1,13);
+            sequence.add(transitions.get(i-1));
+            fireTransition(i);
+            int[] enabled = getEnableTransitions();
+            int test = 0;
+
+            // Chequeamos las t habilitadas
+            for(int j = 0; j < transitions.size(); j++){
+                if(enabled[j] == 0){
+                    test++;
+                }
+            }
+
+            // Si no hay ninguna habilitada -> Deadlock
+            if(test == transitions.size()) {
+                System.out.println("---------- DEADLOCK ----------");
+                deadlock = true;
+            }
+        }
+
+        return sequence;
     }
 
     /**

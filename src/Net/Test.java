@@ -2,9 +2,12 @@ package Net;
 
 import Data.*;
 import Logic.*;
+import org.apache.poi.ss.formula.functions.T;
+import org.w3.x2000.x09.xmldsig.CanonicalizationMethodType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Test {
     public static void main(String[] args) {
@@ -54,8 +57,17 @@ public class Test {
         System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
         System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
+        // Disparamos hasta deadlock
+        List<Transition> seq;
+        seq = pn.fireContinuously();
+
+        // Print sequence
+        for(Transition t : seq) {
+            System.out.printf("%s ",t.getName());
+        }
+
         // Muestra la red
-        //PetrinetGUI.displayPetrinet(pn);
+        PetrinetGUI.displayPetrinet(pn);
 
     }
 

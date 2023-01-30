@@ -134,7 +134,12 @@ public class NetV1 {
         pn.createNet(cantT, cantP, incidenceMatrix, initialMarks, pn);
 
         // Disparamos hasta deadlock
-        pn.fireContinuously(log);
+        //pn.fireContinuously(log);
+        pn.fireContinuouslyTimed(log, 10);
+
+        // Imprimimos información sobre los estados
+        int[] activityPlaces = {1,2,3,4,5,6,8,9,10};
+        pn.printAllStates(activityPlaces);
 
         // Muestra la red
         PetrinetGUI.displayPetrinet(pn);

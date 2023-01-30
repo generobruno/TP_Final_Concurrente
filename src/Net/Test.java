@@ -30,12 +30,32 @@ public class Test {
         pn.setPlaceName("P15", "LAST");
         pn.setTransitionName("T12","LAST");
 
+        // Mostramos info de la Red
         pn.printIncidence();
         System.out.println("");
         pn.printMarks();
+        System.out.println("");
+        pn.printVectorE();
+        System.out.println("");
+        System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
+        System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
+
+        // Disparamos una transición
+        //System.out.println(pn);
+        pn.fireTransition(8);
+        pn.fireTransition(9);
+        //System.out.println(pn);
+
+        // Mostramos info de la Red Actualizada
+        pn.printMarks();
+        System.out.println("");
+        pn.printVectorE();
+        System.out.println("");
+        System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
+        System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
         // Muestra la red
-        PetrinetGUI.displayPetrinet(pn);
+        //PetrinetGUI.displayPetrinet(pn);
 
     }
 

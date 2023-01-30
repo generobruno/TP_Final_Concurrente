@@ -21,6 +21,8 @@ public class Petrinet extends PetrinetObject {
     private int[][] incidenceMatrix;
     // Matriz de Marcado
     private int[] markings;
+    // Transiciones habilitadas
+    private int[] enableTransitions;
 
     private static final String nl = "\n";
 
@@ -52,20 +54,74 @@ public class Petrinet extends PetrinetObject {
 
     /**
      * Método getTransitionsAbleToFire
-     * Devuelva una lista con las transiciones que esten
-     * habilitadas
-     * @return Transiciones sensibilizadas
+     * Obtiene las transiciones que están habilitadas y las guarda
+     * en el vector enableTransitions con un 1 en caso de estarlo,
+     * y con un 0 en caso contrario.
      */
-    public List<Transition> getTransitionsAbleToFire() {
-        ArrayList<Transition> list = new ArrayList<Transition>();
+    public void getTransitionsAbleToFire() {
 
-        for(Transition t : transitions) {
-            if(t.canFire()) {
-                list.add(t);
+        int cantT = transitions.size();
+        this.enableTransitions = new int[cantT];
+
+        /* TODO, Hacer que funcione con las matrices
+        for(int i = 0; i < cantT; i++) {
+            for(int j = 0; j < places.size(); j++) {
+                if((markings[j] < incidenceMatrix[j][i]) && (incidenceMatrix[j][i] != 0)) {
+                    this.enableTransitions[i] = 0;
+                    break;
+                } else {
+                    this.enableTransitions[i] = 1;
+                }
+            }
+        }
+        */
+
+        for(int i = 0; i < cantT; i++){
+            if(transitions.get(i).canFire()) {
+                enableTransitions[i] = 1;
+            } else {
+                enableTransitions[i] = 0;
             }
         }
 
-        return list;
+    }
+
+    /**
+     * Método isEnabled
+     * Chequea si una transición especifica esta
+     * habilitada
+     * @param transition Número de transición
+     * @return True en caso de estar habilitada
+     *         False en caso contrario
+     */
+    public boolean isEnabled(int transition) {
+        if(enableTransitions[(transition - 1)] == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Método getEnableTransitions
+     * @return enableTransitions
+     */
+    public int[] getEnableTransitions() {
+        return enableTransitions;
+    }
+
+    public void printVectorE() {
+        System.out.printf("------------- Enabled Transitions ---------------\n");
+
+        for(int i = 0; i < transitions.size(); i++) {
+            System.out.printf( "%s ", transitions.get(i).getName());
+        }
+
+        System.out.println("");
+
+        for(int i = 0; i < enableTransitions.length; i++) {
+            System.out.printf( " %d ", enableTransitions[i] );
+        }
     }
 
     /**
@@ -317,6 +373,9 @@ public class Petrinet extends PetrinetObject {
 
         // Asigna la matriz de incidencia
         pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+
+        // Asigna valores del vector E
+        pn.getTransitionsAbleToFire();
     }
 
     /**
@@ -375,6 +434,42 @@ public class Petrinet extends PetrinetObject {
      */
     public int[] getMarkings() {
         return markings;
+    }
+
+    /**
+     * Método fireTransition
+     * Dispara una transición específica que le pasemos como
+     * parámetro
+     * @param transition Transición a disparar
+     */
+    public void fireTransition(int transition) {
+        // Obtenemos la transición
+        Transition t = transitions.get(transition - 1);
+
+        if(t.canFire()) {
+            // Dispara la transición si es posible
+            t.fire();
+            // Actualiza la red
+            updateNet(transition);
+        } else {
+            System.out.printf("No es posible Disparar la transición %s.\n", t.getName());
+        }
+    }
+
+    /**
+     * Método updateNet
+     * Función que actualiza los atributos de la red
+     * luego de que se haya disparado una transición
+     *  1. Actualiza los Marcados
+     *  2. Actualiza las transiciones habilitadas
+     */
+    public void updateNet(int t) {
+        // Marcados (Estado del Sistema)
+        for(int i = 0; i < places.size(); i++) {
+            markings[i] += incidenceMatrix[i][t-1];
+        }
+        // Transiciones habilitadas
+        getTransitionsAbleToFire();
     }
 
 }

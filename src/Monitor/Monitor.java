@@ -15,6 +15,7 @@ public class Monitor {
             2. Agregar Cola de Eventos (Events) a las transiciones de la red. La cola es un contador
             que se incrementa al llegar un evento (?) y se decrementa cuando la transición asociada se dispara.
             Para que la transición esté sensibilizada se necesita que su cola tenga al menos 1 evento.
+            CADA TRANSICIÓN OPERA COMO UNA VARIABLE DE CONDICIÓN (?).
             3. Luego de que esto funcione, agregar semánticas temporales [alfa_i, beta_i].
      */
 

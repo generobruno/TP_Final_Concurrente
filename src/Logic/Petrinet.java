@@ -2,10 +2,9 @@ package Logic;
 
 import Data.Logger;
 import org.apache.poi.ss.formula.functions.T;
+import org.bouncycastle.util.Integers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -28,6 +27,8 @@ public class Petrinet extends PetrinetObject {
     private int[] markings;
     // Transiciones habilitadas
     private int[] enableTransitions;
+    // Lista con todos los estados simulados
+    Set<List<Integer>> states = new HashSet<List<Integer>>();
 
     private static final String nl = "\n";
 
@@ -377,11 +378,71 @@ public class Petrinet extends PetrinetObject {
         // Crea las plazas y asigna sus tokens
         pn.generatePlaces(initialMarks,cantP,pn);
 
+        // Agrega el estado inicial a la lista
+        List<Integer> marksClone = cloneStates(states);
+        this.states.add(marksClone);
+
         // Asigna la matriz de incidencia
         pn.AssignIncidence(incidenceMatrix, cantP, cantT);
 
         // Asigna valores del vector E
         pn.getTransitionsAbleToFire();
+    }
+
+    /**
+     * Método cloneStates
+     * Clona el array de estados del sistema a un ArrayList
+     * para poder agregarlo a todos los estados posibles del
+     * sistema
+     * @param states Array a clonar
+     * @return Array clonado como ArrayList
+     */
+    public List<Integer> cloneStates(int[] states) {
+        ArrayList<Integer> clone = new ArrayList<Integer>();
+
+        for(int i = 0; i < states.length; i++) {
+            clone.add(states[i]);
+        }
+
+        return clone;
+    }
+
+    /**
+     * Método getAllStates
+     * @return Todos los estados simulados del sistema
+     */
+    public Set<List<Integer>> getAllStates() {
+        return states;
+    }
+
+    /**
+     * Método printAllStates
+     * Imprime información sobre todos los estados posibles
+     * de la red.
+     *      1. Número de estados posibles.
+     *      2. Marcado máximo (Para plazas de actividades).
+     */
+    public void printAllStates(int[] activityPlaces) {
+        System.out.printf("\n---------- Possible States ----------\n");
+        System.out.printf("The number of possible states are: %d \n", states.size());
+
+        ArrayList<Integer> acts = new ArrayList<Integer>();
+        for(int i = 0; i < activityPlaces.length; i++) {
+            acts.add(activityPlaces[i]);
+        }
+
+        ArrayList<Integer> sumas = new ArrayList<>();
+        for(List<Integer> l : states){
+            int sum_i = 0;
+            for(int i = 0; i < l.size(); i++){
+                if(acts.contains(i)) {
+                    sum_i += l.get(i);
+                }
+            }
+            sumas.add(sum_i);
+        }
+
+        System.out.printf("El marcado máximo es %d", Collections.max(sumas));
     }
 
     /**
@@ -467,6 +528,7 @@ public class Petrinet extends PetrinetObject {
      * se encuentra con un deadlock y no puede disparar ninguna.
      * Imprime en el log una lista con la secuencia
      * de Transiciones disparadas.
+     * @param log Log para las transiciones
      */
     public void fireContinuously(Logger log) {
 
@@ -491,6 +553,43 @@ public class Petrinet extends PetrinetObject {
                 System.out.println("---------- DEADLOCK ----------");
                 deadlock = true;
             }
+
+        }
+    }
+
+    /**
+     * Método fireContinuouslyTimed
+     * Método similar a fireContinuously, pero con un tiempo
+     * limite
+     * @param log Log para las transiciones
+     * @param time tiempo límite de ejecución [Segundos]
+     */
+    public void fireContinuouslyTimed(Logger log, int time) {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + time*1000;
+
+        boolean deadlock = false;
+        while(!deadlock && (System.currentTimeMillis() <  endTime)) {
+            // Disparamos transición
+            int i = ThreadLocalRandom.current().nextInt(1,13);
+            log.logT(transitions.get(i-1).getName());
+            fireTransition(i);
+            int[] enabled = getEnableTransitions();
+            int test = 0;
+
+            // Chequeamos las t habilitadas
+            for(int j = 0; j < transitions.size(); j++){
+                if(enabled[j] == 0){
+                    test++;
+                }
+            }
+
+            // Si no hay ninguna habilitada -> Deadlock
+            if(test == transitions.size()) {
+                System.out.println("---------- DEADLOCK ----------");
+                deadlock = true;
+            }
+
         }
 
     }
@@ -507,6 +606,9 @@ public class Petrinet extends PetrinetObject {
         for(int i = 0; i < places.size(); i++) {
             markings[i] += incidenceMatrix[i][t-1];
         }
+        // Agrega el estado a la lista
+        List<Integer> marksClone = cloneStates(markings);
+        this.states.add(marksClone);
         // Transiciones habilitadas
         getTransitionsAbleToFire();
     }

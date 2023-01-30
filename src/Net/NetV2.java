@@ -3,6 +3,7 @@ package Net;
 import Data.*;
 import Logic.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -158,7 +159,12 @@ public class NetV2 {
         pn.setPlaceName("P18", "Cs3");
 
         // Disparamos hasta deadlock
-        pn.fireContinuously(log);
+        //pn.fireContinuously(log);
+        pn.fireContinuouslyTimed(log, 10);
+
+        // Imprimimos información sobre los estados
+        int[] activityPlaces = {1,2,3,4,5,6,8,9,10};
+        pn.printAllStates(activityPlaces);
 
         PetrinetGUI.displayPetrinet(pn);
     }

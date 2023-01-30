@@ -62,6 +62,10 @@ public class Test {
         // Disparamos hasta deadlock
         pn.fireContinuously(log);
 
+        // Imprimimos información sobre los estados
+        int[] activityPlaces = {1,2,3,4,5,6,8,9,10};
+        pn.printAllStates(activityPlaces);
+
         // Muestra la red
         PetrinetGUI.displayPetrinet(pn);
 

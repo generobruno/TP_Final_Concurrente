@@ -53,7 +53,8 @@ public class Monitor {
             petrinet.fireTransition(t);
 
 
-           // Luego de disparar despierta a los hilos que estaban esperando una habilitación
+            // Luego de disparar despierta a los hilos que estaban esperando una habilitación
+            // signalAll() ya que un disparo puede habilitar a más de una transición
             waitQueue.signalAll();
 
 

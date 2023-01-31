@@ -7,9 +7,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Monitor {
 
-    private Petrinet petrinet;
-    private ReentrantLock mutex;  // TODO REENTRANTLOCK O SEMAPHORE?
-    private Condition waitQueue;
+    private final Petrinet petrinet;
+    private final ReentrantLock mutex;  // TODO REENTRANTLOCK O SEMAPHORE?
+    private final Condition waitQueue;
 
     /**
      * Constructor de la clase
@@ -25,11 +25,12 @@ public class Monitor {
      * Método fireTransition
      * Método que ejecutan los hilos del sistema cuando quieren disparar una transición
      * de la red de Petri asociada. Los segmentos de ejecución utilizan este método.
-     * @param t
+     * @param t Transición a disparar
      */
     public void fireTransition(int t) {
 
-        /**
+        /*
+         *TODO
          * Basicamente, vienen distintos hilos a intentar disparar las transiciones.
          * Si la transicion que quiere disparar un hilo especifico esta deshabilitada,
          * entonces dicho hilo debe ir a una COLA DE ESPERA (Wait_i) , y cuando la

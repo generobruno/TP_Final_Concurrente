@@ -1,7 +1,5 @@
 package Data;
 
-import org.apache.commons.logging.Log;
-
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
@@ -14,7 +12,7 @@ public class Logger {
     // Archivo a escribir
     private FileWriter file;
     // Path para la secuencia de transiciones
-    private String LOG_TRANSITION = "data/log/log.txt";
+    private final String LOG_TRANSITION = "data/log/log.txt";
 
     /**
      * Constructor de la clase

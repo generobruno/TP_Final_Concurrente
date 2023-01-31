@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Monitor {
 
     private final Petrinet petrinet;
-    private final ReentrantLock mutex;  // TODO REENTRANTLOCK O SEMAPHORE?
+    private final ReentrantLock mutex;
     private final Condition waitQueue;
 
     /**
@@ -30,7 +30,6 @@ public class Monitor {
     public void fireTransition(int t) {
 
         /*
-         *TODO
          * Basicamente, vienen distintos hilos a intentar disparar las transiciones.
          * Si la transicion que quiere disparar un hilo especifico esta deshabilitada,
          * entonces dicho hilo debe ir a una COLA DE ESPERA (Wait_i) , y cuando la
@@ -65,6 +64,7 @@ public class Monitor {
             // Finalmente, libera el lock
             mutex.unlock();
 
+
         }
 
     }
@@ -73,15 +73,5 @@ public class Monitor {
 
     /*
        TODO
-        Asignar a la clase los atributos:
-            1. Red de Petri
-            2. Mutex (ReentrantLock o Semaphore)
-            3. Estado del sistema (Distintos valores de la matriz de marcado)
-            4. Eventos del sistema (Transiciones disparadas)
-        Ademas, los métodos:
-            1. Agregar Cola de Eventos (Events) a las transiciones de la red. La cola es un contador
-            que se incrementa al llegar un evento (?) y se decrementa cuando la transición asociada se dispara.
-            Para que la transición esté sensibilizada se necesita que su cola tenga al menos 1 evento.
-            CADA TRANSICIÓN OPERA COMO UNA VARIABLE DE CONDICIÓN (?).
-            2. Luego de que esto funcione, agregar semánticas temporales [alfa_i, beta_i].
+         1. Agregar semánticas temporales [alfa_i, beta_i].
      */

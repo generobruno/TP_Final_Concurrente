@@ -11,15 +11,15 @@ import Monitor.Monitor;
 public class Segment implements Runnable{
 
     // Monitor en donde se ejecuta el segmento
-    private Monitor monitor;
+    private final Monitor monitor;
     // Red de Petri simulada
-    private Petrinet petrinet;
+    private final Petrinet petrinet;
     // Transiciones a disparar
     int[] transitions;
     // Boolean para terminar la ejecución
     private boolean finish;
     // Logger
-    private Logger log;
+    private final Logger log;
 
     /**
      * Constructor de la clase

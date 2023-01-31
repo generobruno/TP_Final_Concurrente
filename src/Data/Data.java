@@ -16,7 +16,7 @@ public class Data {
     public int[] getMarks(String name, int t) {
         int[] vector = new int[t];
 
-        try(FileInputStream file = new FileInputStream(new File(name))) {
+        try(FileInputStream file = new FileInputStream(name)) {
 
             HSSFWorkbook calc = new HSSFWorkbook(file);
             HSSFSheet hoja = calc.getSheetAt(0);

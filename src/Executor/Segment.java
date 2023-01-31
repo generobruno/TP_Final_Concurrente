@@ -41,10 +41,10 @@ public class Segment implements Runnable{
      */
     public void fireSegment() {
         for(int i = 0; i < this.transitions.length; i++) {
-            System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
+            //System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
             monitor.fireTransition(transitions[i]);
-            System.out.printf("Transition %d FIRED\n", transitions[i]);
-            //log.logT("T"+transitions[i]+" - "+Thread.currentThread().getName());
+            //System.out.printf("Transition %d FIRED\n", transitions[i]);
+            log.logT("T"+transitions[i]+"-");
         }
     }
 

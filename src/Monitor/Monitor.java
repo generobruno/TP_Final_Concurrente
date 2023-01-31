@@ -9,7 +9,7 @@ public class Monitor {
 
     private Petrinet petrinet;
     private ReentrantLock mutex;  // TODO REENTRANTLOCK O SEMAPHORE?
-    private Condition[] waitQueue;
+    private Condition waitQueue;
 
     /**
      * Constructor de la clase
@@ -18,10 +18,7 @@ public class Monitor {
     public Monitor(Petrinet pn) {
         petrinet = pn;
         mutex = new ReentrantLock();
-        waitQueue = new Condition[18]; // TODO 18 o 12?
-        for(int i = 0; i < waitQueue.length; i++) {
-            waitQueue[i] = mutex.newCondition();
-        }
+        waitQueue = mutex.newCondition();
     }
 
     /**
@@ -42,29 +39,29 @@ public class Monitor {
          */
 
         try {
+
+            // Entra un thread y toma el lock
             mutex.lock();
 
-
+            // Mientras la transición a disparar esté deshabilitada, espera
             while(!petrinet.isEnabled(t)) {
-                waitQueue[t-1].await();
+                waitQueue.await();
             }
 
-
+            // Dispara la transición cuando se habilita
             petrinet.fireTransition(t);
 
 
-            for(int i = 0; i < 18; i++) {
-                waitQueue[i].signalAll();
-            }
+           // Luego de disparar despierta a los hilos que estaban esperando una habilitación
+            waitQueue.signalAll();
 
 
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
 
-
+            // Finalmente, libera el lock
             mutex.unlock();
-
 
         }
 

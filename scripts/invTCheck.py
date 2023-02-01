@@ -14,7 +14,7 @@ invariant = '(.*?)(T9)(.*?)(T10)(.*?)(T11)(.*?)(T12)(.*?)|(.*?)(T1)(.*?)((T3)(.*
 # Grupos con los que se reemplaza el patrón
 groups = '\g<1>\g<3>\g<5>\g<7>\g<9>\g<10>\g<12>\g<15>\g<17>\g<19>\g<21>\g<23>\g<25>\g<27>'
 # Archivo log con las transiciones disparadas
-file = open("/data/log/log.txt", "r")
+file = open("data/log/log.txt", "r")
 # Variable (tupla) con el texto del log [0] y el número de reemplazos [1]
 res = (file.read().rstrip(), 0)
 

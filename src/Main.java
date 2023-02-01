@@ -98,26 +98,43 @@ public class Main {
          * ejecución de los invariantes de transición
          */
 
-        /*
+        // Esperamos a que los hilos terminen TODO REVISAR
+        for(int i = 0; i < threadAmount; i++) {
+            try{
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Ejecutamos el script
         try {
-            // Ejecutamos el script TODO Cambiar path
-            Process p = Runtime.getRuntime().exec("C:\\Users\\Bruno\\Code\\Python\\chequeo_InvT.py");
+            // Corriendo el batch file
+            Process p = Runtime.getRuntime().exec("scripts/invCheck.bat");
 
             // Guardamos su resultado en stdin
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
+            // Guardamos el stderr
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
             // Leemos la salida del programa
             System.out.println("Resultado del Script: ");
-            String s;
+            String s = null;
             while((s = stdInput.readLine()) != null) {
                 System.out.println(s);
             }
 
+            // Imprimimos el error del script, en caso de que ocurra
+            while ((s = stdError.readLine()) != null) {
+                System.out.println(s);
+            }
+
         } catch (IOException e) {
-            System.out.println("Excepción ocurrida: ");
+            System.out.println("Error: ");
             e.printStackTrace();
         }
-        */
+
 
     }
 }

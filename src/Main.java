@@ -3,6 +3,10 @@ import Executor.Segment;
 import Logic.Petrinet;
 import Monitor.Monitor;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 /**
  * Clase Main
  *  Utilizada para simular el funcionamiento de la red.
@@ -88,6 +92,32 @@ public class Main {
         for(int i = 0; i < threadAmount; i++) {
             threads[i].start();
         }
+
+        /**
+         * Finalmente, ejecutamos el script en python para chequear la correcta
+         * ejecución de los invariantes de transición
+         */
+
+        /*
+        try {
+            // Ejecutamos el script TODO Cambiar path
+            Process p = Runtime.getRuntime().exec("C:\\Users\\Bruno\\Code\\Python\\chequeo_InvT.py");
+
+            // Guardamos su resultado en stdin
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            // Leemos la salida del programa
+            System.out.println("Resultado del Script: ");
+            String s;
+            while((s = stdInput.readLine()) != null) {
+                System.out.println(s);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Excepción ocurrida: ");
+            e.printStackTrace();
+        }
+        */
 
     }
 }

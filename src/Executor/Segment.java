@@ -44,7 +44,7 @@ public class Segment implements Runnable{
             //System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
             monitor.fireTransition(transitions[i]);
             //System.out.printf("Transition %d FIRED\n", transitions[i]);
-            log.logT("T"+transitions[i]+"-");
+            log.logT("T"+transitions[i]+"-"); // TODO Hacer esto dentro del monitor??
         }
     }
 

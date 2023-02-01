@@ -1,6 +1,8 @@
 package Data;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
@@ -9,6 +11,10 @@ import java.io.PrintWriter;
  */
 public class Logger {
 
+    // Carpeta para los logs
+    private File dir;
+    // File para crear el archivo a escribir
+    private File logFile;
     // Archivo a escribir
     private FileWriter file;
     // Path para la secuencia de transiciones
@@ -18,8 +24,22 @@ public class Logger {
      * Constructor de la clase
      */
     public Logger() {
-        file = null;
-        clear();
+        try {
+            file = null;
+
+            // Creamos la carpeta en caso de que no exista
+            dir = new File("data/log");
+            dir.mkdir();
+
+            // Creamos el archivo en caso de no existir
+            logFile = new File(LOG_TRANSITION);
+            logFile.createNewFile();
+
+            // Limpiamos el archivo
+            clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -34,7 +54,7 @@ public class Logger {
             PrintWriter printWriter = new PrintWriter(file);
             printWriter.printf("%s", transition);
             printWriter.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -49,7 +69,7 @@ public class Logger {
             PrintWriter writer = new PrintWriter(file);
             writer.print("");
             writer.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

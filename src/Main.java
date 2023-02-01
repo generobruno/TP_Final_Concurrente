@@ -98,7 +98,7 @@ public class Main {
          * ejecución de los invariantes de transición
          */
 
-        // Esperamos a que los hilos terminen TODO REVISAR
+        // Esperamos a que los hilos terminen TODO REVISAR esto
         for(int i = 0; i < threadAmount; i++) {
             try{
                 threads[i].join();

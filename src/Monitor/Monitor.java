@@ -28,6 +28,7 @@ public class Monitor {
     private int invFired;
     // Logger
     private Logger log;
+    int aux = 0;
 
     /**
      * Constructor de la clase
@@ -72,6 +73,8 @@ public class Monitor {
 
             // Dispara la transición cuando se habilita
             petrinet.fireTransition(t,log);
+
+
 
             // Incrementamos el valor de la transición disparada
             incrementInvariant(t);
@@ -152,6 +155,13 @@ public class Monitor {
      */
     public synchronized boolean isFinished() {
         return (invFired>=maxInv);
+    }
+
+    // TODO REVISAR
+    public synchronized boolean homeState() {
+        boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
+
+        return homeState;
     }
 
 }

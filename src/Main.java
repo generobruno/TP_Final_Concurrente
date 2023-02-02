@@ -166,3 +166,11 @@ public class Main {
 
     }
 }
+
+/*
+TODO
+    El chequeo de invariantes falla cuando usamos hilos. Parece ser que el archivo log se corrompe a veces por el script.
+    Además, hay que encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
+    un regex que funciona aunque no se vuelva al estado inicial. Para lo primero hay que revisar la inicialización de
+    el atributo initialState en la clase Petrinet y después compararlo con el estado actual en Segment.run().
+ */

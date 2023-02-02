@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,16 +59,6 @@ public class Main {
             invariants.put(invT[i], 0);
         }
 
-        // Creamos un array con los invariantes de plazas y un mapa para contar su ejecución
-        String[] invP1 = {"P10","P11","P8","P9"};               // = 4
-        String[] invP2 = {"P1","P10","P12"};                    // = 2
-        String[] invP3 = {"P13","P2","P3","P9"};                // = 2
-        String[] invP4 = {"P14","P4","P5","P8"};                // = 3
-        String[] invP5 = {"P15","P6"};                          // = 1
-        String[] invP6 = {"P1","P2","P3","P4","P5","P6","P7"};  // = 4
-        String[] invP7 = {"P1","P9","Cs1"};                     // = 3
-        String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
-        String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
 
         /**
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con
@@ -181,8 +172,7 @@ public class Main {
 
 /*
 TODO
-    El chequeo de invariantes falla cuando usamos hilos. Parece ser que el archivo log se corrompe a veces por el script.
-    Además, hay que encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
+    Hay que encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
     un regex que funciona aunque no se vuelva al estado inicial. Para lo primero hay que revisar la inicialización de
     el atributo initialState en la clase Petrinet y después compararlo con el estado actual en Segment.run().
  */

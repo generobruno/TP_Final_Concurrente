@@ -76,7 +76,7 @@ public class Monitor {
             petrinet.fireTransition(t,log);
 
             // Chequeamos que se cumplan los Invariantes de Plaza
-            checkPlaceInv(log);
+            checkPlaceInv(t,log);
 
             // Incrementamos el valor de la transición disparada
             incrementInvariant(t);
@@ -148,7 +148,7 @@ public class Monitor {
      * Chequea que se cumplan los invariantes de plaza de la red
      * @param log Logger para escribir la información
      */
-    public synchronized void checkPlaceInv(Logger log) {
+    public synchronized void checkPlaceInv(int t, Logger log) {
         // Invariantes de transición TODO MEJORAR
         String[] invP1 = {"P10","P11","P8","P9"};               // = 4
         String[] invP2 = {"P1","P10","P12"};                    // = 2
@@ -160,6 +160,8 @@ public class Monitor {
         String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
         String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
 
+
+        log.logP("Disparo de T"+ t);
         if(!sumInvP(invP1,4,log)) {
             log.logP("Error en Invariante de plaza.");
         }
@@ -187,6 +189,7 @@ public class Monitor {
         if(!sumInvP(invP9,6,log)) {
             log.logP("Error en Invariante de plaza.");
         }
+        log.logP("\n\n");
 
     }
 

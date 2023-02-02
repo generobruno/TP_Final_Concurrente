@@ -371,14 +371,18 @@ public class Petrinet extends PetrinetObject {
         int[][] incidenceMatrix = incidence;
         // Marcado inicial
         int[] initialMarks = state;
-        // Asignamos el estado inicial
-        this.initialState = state;
 
         // Crea las transiciones
         pn.generateTransitions(cantT, pn);
 
         // Crea las plazas y asigna sus tokens
         pn.generatePlaces(initialMarks,cantP,pn);
+
+        // Asignamos el estado inicial
+        this.initialState = new int[cantP];
+        for(int i : state) {
+            initialState[i] = state[i];
+        }
 
         // Agrega el estado inicial a la lista
         List<Integer> marksClone = cloneStates(state);

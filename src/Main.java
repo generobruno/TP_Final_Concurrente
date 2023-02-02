@@ -6,6 +6,9 @@ import Monitor.Monitor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Clase Main
@@ -45,6 +48,15 @@ public class Main {
         pn.setPlaceName("P17", "Cs2");
         pn.setPlaceName("P18", "Cs3");
 
+        // Creamos un array con los invariantes y un mapa para contar su ejecución TODO MEJORAR
+        int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
+        int maxInv = 100;
+        // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
+        Map<Integer,Integer> invariants = new HashMap<>();
+        for(int i = 0; i < invT.length; i++) {
+            invariants.put(invT[i], 0);
+        }
+
         /**
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con
          * los distintos segmentos encargados del disparo de los invariantes
@@ -52,7 +64,7 @@ public class Main {
          */
 
         // Creamos el monitor y le asignamos la red
-        Monitor monitor = new Monitor(pn);
+        Monitor monitor = new Monitor(pn, invariants, maxInv, log);
 
         // Cantidad de hilos y de segmentos resultado del análisis de la red
         int threadAmount = 18;
@@ -63,6 +75,12 @@ public class Main {
         Segment segments[] = new Segment[segmentsAmount];
         int[] segThreads = {4,2,4,4,4};
 
+        // Cheque de cantidad de hilos
+        if(Arrays.stream(segThreads).sum() != threadAmount) {
+            System.out.printf("Error en la Cantidad de Hilos o cantidad de Hilos por segmento.\n");
+            System.exit(1);
+        }
+
         // Creamos un array para las transiciones de cada segmento
         int[] seg1T = {9,10,11,12};
         int[] seg2T = {1};
@@ -71,12 +89,11 @@ public class Main {
         int[] seg5T = {8};
 
         // Creamos los segmentos y les asignamos sus transiciones
-        // TODO VER IMPLEMENTACION DEL LOG
-        segments[0] = new Segment(monitor,pn,seg1T,log);
-        segments[1] = new Segment(monitor,pn,seg2T,log);
-        segments[2] = new Segment(monitor,pn,seg3T,log);
-        segments[3] = new Segment(monitor,pn,seg4T,log);
-        segments[4] = new Segment(monitor,pn,seg5T,log);
+        segments[0] = new Segment(monitor,pn,seg1T);
+        segments[1] = new Segment(monitor,pn,seg2T);
+        segments[2] = new Segment(monitor,pn,seg3T);
+        segments[3] = new Segment(monitor,pn,seg4T);
+        segments[4] = new Segment(monitor,pn,seg5T);
 
         // Creamos los hilos por segmento
         int idx = 0;
@@ -85,7 +102,6 @@ public class Main {
                 threads[idx] = new Thread(segments[i], "Seg" + (i+1) + " - Thread" + (j+1) );
                 idx++;
             }
-            System.out.println("");
         }
 
         // Lanzamos los hilos
@@ -98,7 +114,7 @@ public class Main {
          * ejecución de los invariantes de transición
          */
 
-        // Esperamos a que los hilos terminen TODO REVISAR esto
+        // El hilo Main espera a que los demás hilos terminen
         for(int i = 0; i < threadAmount; i++) {
             try{
                 threads[i].join();
@@ -133,6 +149,15 @@ public class Main {
         } catch (IOException e) {
             System.out.println("Error: ");
             e.printStackTrace();
+        }
+
+        // Imprimimos el estado final de la red
+        if(!Arrays.equals(pn.getInitialState(),pn.getMarkings())) {
+            System.out.println("ERROR");
+        }
+        System.out.printf("Petri Net State\n");
+        for(int i : pn.getMarkings()){
+            System.out.printf("%d - ",i);
         }
 
 

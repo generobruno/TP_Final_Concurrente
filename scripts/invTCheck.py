@@ -7,6 +7,7 @@ import re
     En caso de sobrar transiciones, significa que hay un fallo en los invariantes del sistema, ya que
     al reemplazar por los grupos deberíamos obtener otros invariantes que fueron disparados por
     interleaving.
+    Para que se tome como exitoso el análisis, la red deberá haber vuelto a su estado inicial.
 '''
 
 # Patrón de los distintos invariantes de Transición

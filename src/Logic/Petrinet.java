@@ -1,8 +1,6 @@
 package Logic;
 
 import Data.Logger;
-import org.apache.poi.ss.formula.functions.T;
-import org.bouncycastle.util.Integers;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,6 +23,8 @@ public class Petrinet extends PetrinetObject {
     private int[][] incidenceMatrix;
     // Matriz de Marcado
     private int[] markings;
+    // Estado inicial
+    private int[] initialState;
     // Transiciones habilitadas
     private int[] enableTransitions;
     // Lista con todos los estados simulados
@@ -358,10 +358,10 @@ public class Petrinet extends PetrinetObject {
      * @param t Cantidad de Transiciones
      * @param p Cantidad de Plazas
      * @param incidence Matriz de Incidencia
-     * @param states Matriz de Marcado Inicial
+     * @param state Matriz de Marcado Inicial
      * @param pn Red de Petri
      */
-    public void createNet(int t, int p, int[][] incidence, int[] states, Petrinet pn) {
+    public void createNet(int t, int p, int[][] incidence, int[] state, Petrinet pn) {
         // Cantidad de Transiciones
         int cantT = t;
         // Cantidad de Plazas
@@ -370,7 +370,9 @@ public class Petrinet extends PetrinetObject {
         // Matriz de Incidencia : 15 plazas (filas), 12 transiciones (columnas)
         int[][] incidenceMatrix = incidence;
         // Marcado inicial
-        int[] initialMarks = states;
+        int[] initialMarks = state;
+        // Asignamos el estado inicial
+        this.initialState = state;
 
         // Crea las transiciones
         pn.generateTransitions(cantT, pn);
@@ -379,7 +381,7 @@ public class Petrinet extends PetrinetObject {
         pn.generatePlaces(initialMarks,cantP,pn);
 
         // Agrega el estado inicial a la lista
-        List<Integer> marksClone = cloneStates(states);
+        List<Integer> marksClone = cloneStates(state);
         this.states.add(marksClone);
 
         // Asigna la matriz de incidencia
@@ -509,6 +511,25 @@ public class Petrinet extends PetrinetObject {
      * parámetro
      * @param transition Transición a disparar
      */
+    public void fireTransition(int transition, Logger log) {
+        // Obtenemos la transición
+        Transition t = transitions.get(transition - 1);
+
+        if(t.canFire()) {
+            // Dispara la transición si es posible
+            t.fire();
+            // Registramos el disparo
+            log.logT(t.getName());
+            // Actualiza la red
+            updateNet(transition);
+        }
+    }
+
+    /**
+     * Método fireTransition
+     * Sin logger
+     * @param transition Transición a disparar
+     */
     public void fireTransition(int transition) {
         // Obtenemos la transición
         Transition t = transitions.get(transition - 1);
@@ -533,10 +554,15 @@ public class Petrinet extends PetrinetObject {
     public void fireContinuously(Logger log) {
 
         boolean deadlock = false;
+        int aux = 0;
+        int[] initial = {0,0,0,0,0,0,4,0,0,0,4,2,2,3,1,3,4,6};
         while(!deadlock) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
-            log.logT(transitions.get(i-1).getName());
+            Transition t = transitions.get(i-1);
+            if(t.canFire()){
+                log.logT(t.getName());
+            }
             fireTransition(i);
             int[] enabled = getEnableTransitions();
             int test = 0;
@@ -552,6 +578,16 @@ public class Petrinet extends PetrinetObject {
             if(test == transitions.size()) {
                 System.out.println("---------- DEADLOCK ----------");
                 deadlock = true;
+            }
+
+            // Luego de volver al estado inicial 10 veces, se detiene
+            if(Arrays.equals(this.getMarkings(), initial)){
+                aux++;
+                if(aux > 10) {
+                    System.out.printf("------ Vuelta al comienzo -------\n");
+                    deadlock = true;
+                }
+
             }
 
         }
@@ -592,6 +628,14 @@ public class Petrinet extends PetrinetObject {
 
         }
 
+    }
+
+    /**
+     * Método getInitialState
+     * @return Estado inicial de la red
+     */
+    public int[] getInitialState() {
+        return initialState;
     }
 
     /**

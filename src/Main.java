@@ -174,5 +174,7 @@ public class Main {
 TODO
     Hay que encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
     un regex que funciona aunque no se vuelva al estado inicial. Para lo primero hay que revisar la inicialización de
-    el atributo initialState en la clase Petrinet y después compararlo con el estado actual en Segment.run().
+    el atributo initialState en la clase PetriNet y después compararlo con el estado actual en Segment.run().
+    Además ver si es necesario que los métodos de monitor ejecutados por los segmentos que no usan el mutex
+    (ej. Monitor.isFinished()) deberían ser synchronized.
  */

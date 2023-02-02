@@ -29,7 +29,6 @@ public class Monitor {
     private int invFired;
     // Logger
     private Logger log;
-    int aux = 0;
 
     /**
      * Constructor de la clase
@@ -103,7 +102,7 @@ public class Monitor {
      * al que pertenece esta transición.
      * @param t Transición disparada
      */
-    public synchronized void incrementInvariant(int t) {
+    public void incrementInvariant(int t) {
         // Incrementamos el valor de la transición disparada
         invariants.put(t,invariants.get(t)+1);
 
@@ -128,7 +127,7 @@ public class Monitor {
      * @param inv Array de transiciones que componen el invariante
      * @return True en caso de que se haya completado una transición
      */
-    public synchronized boolean checkInvariant(int[] inv) {
+    public boolean checkInvariant(int[] inv) {
         int aux = 0;
         for(int i : inv) {
             if(invariants.get(i) >= 1){
@@ -148,7 +147,7 @@ public class Monitor {
      * Chequea que se cumplan los invariantes de plaza de la red
      * @param log Logger para escribir la información
      */
-    public synchronized void checkPlaceInv(int t, Logger log) {
+    public void checkPlaceInv(int t, Logger log) {
         // Invariantes de transición TODO MEJORAR
         String[] invP1 = {"P10","P11","P8","P9"};               // = 4
         String[] invP2 = {"P1","P10","P12"};                    // = 2
@@ -201,7 +200,7 @@ public class Monitor {
      * @param num Número al que debe igualarse la suma de sus tokens
      * @return True en caso de ser igual a num
      */
-    public synchronized boolean sumInvP(String[] invP, int num, Logger log) {
+    public boolean sumInvP(String[] invP, int num, Logger log) {
         int sum = 0;
 
         log.logP("\nInvariantes de Plaza: ");
@@ -226,7 +225,7 @@ public class Monitor {
      * Método getInvFired
      * @return Invariantes disparadas
      */
-    public synchronized int getInvFired() {
+    public int getInvFired() {
         return invFired;
     }
 
@@ -234,12 +233,12 @@ public class Monitor {
      * Método isFinished
      * @return True en caso de que se hayan disparado las transiciones necesarias
      */
-    public synchronized boolean isFinished() {
+    public boolean isFinished() {
         return (invFired>=maxInv);
     }
 
     // TODO REVISAR
-    public synchronized boolean homeState() {
+    public boolean homeState() {
         boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
 
         return homeState;

@@ -378,7 +378,7 @@ public class Petrinet extends PetrinetObject {
         // Crea las plazas y asigna sus tokens
         pn.generatePlaces(initialMarks,cantP,pn);
 
-        // Asignamos el estado inicial
+        // Asignamos el estado inicial TODO REVISAR!!!!!
         this.initialState = new int[cantP];
         for(int i : state) {
             initialState[i] = state[i];
@@ -558,8 +558,8 @@ public class Petrinet extends PetrinetObject {
     public void fireContinuously(Logger log) {
 
         boolean deadlock = false;
-        int aux = 0;
         int[] initial = {0,0,0,0,0,0,4,0,0,0,4,2,2,3,1,3,4,6};
+        int aux = 0;
         while(!deadlock) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
@@ -587,7 +587,7 @@ public class Petrinet extends PetrinetObject {
             // Luego de volver al estado inicial 10 veces, se detiene
             if(Arrays.equals(this.getMarkings(), initial)){
                 aux++;
-                if(aux > 10) {
+                if(aux > 10){
                     System.out.printf("------ Vuelta al comienzo -------\n");
                     deadlock = true;
                 }

@@ -52,7 +52,7 @@ public class Logger {
         try {
             file = new FileWriter(LOG_TRANSITION, true);
             PrintWriter printWriter = new PrintWriter(file);
-            printWriter.printf("%s", transition);
+            printWriter.printf("%s-", transition);
             printWriter.close();
         } catch (IOException e) {
             e.printStackTrace();

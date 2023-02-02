@@ -69,9 +69,9 @@ public class Segment implements Runnable{
                 monitor.fireTransition(transitions[i]);
                 //System.out.printf("Transition %d FIRED\n", transitions[i]);
 
-                boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings())); // TODO COMO HACER QUE VUELVA AL ESTADO INICIAL
+                //boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings())); // TODO COMO HACER QUE VUELVA AL ESTADO INICIAL
 
-                // Si se dispararon más de 1000 invariantes, se detiene la ejecución
+                // Si se dispararon más de [invMax] invariantes, se detiene la ejecución
                 if( (monitor.isFinished())) {
                     System.out.printf("%s Finished\n",Thread.currentThread().getName());
                     finish = true;

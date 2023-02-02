@@ -50,7 +50,7 @@ public class Main {
 
         // Creamos un array con los invariantes y un mapa para contar su ejecución TODO MEJORAR
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int maxInv = 100;
+        int maxInv = 1000;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
         Map<Integer,Integer> invariants = new HashMap<>();
         for(int i = 0; i < invT.length; i++) {
@@ -122,6 +122,9 @@ public class Main {
                 e.printStackTrace();
             }
         }
+
+        // El hilo main dispara transiciones hasta volver el estado inicial, para el script
+        pn.fireContinuously(log);
 
         // Ejecutamos el script
         try {

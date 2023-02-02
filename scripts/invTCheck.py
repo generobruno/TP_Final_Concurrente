@@ -11,7 +11,7 @@ import re
 '''
 
 # Patrón de los distintos invariantes de Transición
-invariant = '(.*?)(T9)(.*?)(T10)(.*?)(T11)(.*?)(T12)(.*?)|(.*?)(T1)(.*?)((T3)(.*?)(T5)(.*?)(T7)(.*?)|(T2)(.*?)(T4)(.*?)(T6)(.*?))(T8)(.*?)'
+invariant = '(.*?)(T9)(?=-)(.*?)(T10)(.*?)(T11)(.*?)(T12)(.*?)|(.*?)(T1)(.*?)((T3)(.*?)(T5)(.*?)(T7)(.*?)|(T2)(.*?)(T4)(.*?)(T6)(.*?))(T8)(.*?)'
 # Grupos con los que se reemplaza el patrón
 groups = '\g<1>\g<3>\g<5>\g<7>\g<9>\g<10>\g<12>\g<15>\g<17>\g<19>\g<21>\g<23>\g<25>\g<27>'
 # Archivo log con las transiciones disparadas
@@ -30,8 +30,10 @@ while True:
     if res[1] == 0:
         break
 
+res = re.subn('-' , '' , res[0].rstrip())
+
 # Imprimimos el resultado del análisis
 if res[0] == '':
     print("\nNo hay fallos en los invariantes\n")
 else:
-    print("Fallo en Invariantes de transición:\n" + res[0] + '\n')
+    print("Fallo en Invariantes de transicion:\n" + res[0] + '\n')

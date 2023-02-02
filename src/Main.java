@@ -1,7 +1,6 @@
 import Data.*;
 import Executor.Segment;
 import Logic.Petrinet;
-import Logic.Place;
 import Monitor.Monitor;
 
 import java.io.BufferedReader;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,7 +17,7 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) {
 
-        /**
+        /*
          *  Primero Creamos la Red de Petri, utilizando la matriz de incidencia
          *  y el vector de marcado en la carpeta "data" (V2). Las últimas 3 plazas
          *  son de control (Csi).
@@ -55,12 +53,12 @@ public class Main {
         int maxInv = 1000;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
         Map<Integer,Integer> invariants = new HashMap<>();
-        for(int i = 0; i < invT.length; i++) {
-            invariants.put(invT[i], 0);
+        for (int k : invT) {
+            invariants.put(k, 0);
         }
 
 
-        /**
+        /*
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con
          * los distintos segmentos encargados del disparo de los invariantes
          * de la red.
@@ -74,13 +72,13 @@ public class Main {
         int segmentsAmount = 5;
 
         // Creamos un array de segmentos y de sus respectivos hilos de ejecución
-        Thread threads[] = new Thread[threadAmount];
-        Segment segments[] = new Segment[segmentsAmount];
+        Thread[] threads = new Thread[threadAmount];
+        Segment[] segments = new Segment[segmentsAmount];
         int[] segThreads = {4,2,4,4,4};
 
-        // Cheque de cantidad de hilos
+        // Chequeo de cantidad de hilos
         if(Arrays.stream(segThreads).sum() != threadAmount) {
-            System.out.printf("Error en la Cantidad de Hilos o cantidad de Hilos por segmento.\n");
+            System.out.print("Error en la Cantidad de Hilos o cantidad de Hilos por segmento.\n");
             System.exit(1);
         }
 
@@ -112,7 +110,7 @@ public class Main {
             threads[i].start();
         }
 
-        /**
+        /*
          * Finalmente, ejecutamos el script en python para chequear la correcta
          * ejecución de los invariantes de transición
          */
@@ -142,7 +140,7 @@ public class Main {
 
             // Leemos la salida del programa
             System.out.println("Resultado del Script: ");
-            String s = null;
+            String s;
             while((s = stdInput.readLine()) != null) {
                 System.out.println(s);
             }
@@ -161,7 +159,7 @@ public class Main {
         if(!Arrays.equals(pn.getInitialState(),pn.getMarkings())) {
             System.out.println("ERROR");
         }
-        System.out.printf("Petri Net State\n");
+        System.out.print("Petri Net State\n");
         for(int i : pn.getMarkings()){
             System.out.printf("%d - ",i);
         }

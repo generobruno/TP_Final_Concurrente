@@ -18,7 +18,9 @@ public class Logger {
     // Archivo a escribir
     private FileWriter file;
     // Path para la secuencia de transiciones
-    private final String LOG_TRANSITION = "data/log/log.txt";
+    private final String LOG_TRANSITION = "data/log/logFired.txt";
+    // Path para los invariantes de plaza
+    private final String LOG_PLACES = "data/log/logInvP.txt";
 
     /**
      * Constructor de la clase
@@ -35,7 +37,11 @@ public class Logger {
             logFile = new File(LOG_TRANSITION);
             logFile.createNewFile();
 
-            // Limpiamos el archivo
+            // Creamos el archivo en caso de no existir
+            logFile = new File(LOG_PLACES);
+            logFile.createNewFile();
+
+            // Limpiamos los archivos
             clear();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,6 +66,23 @@ public class Logger {
     }
 
     /**
+     * Método logP
+     * Escribe un archivo de texto con los invariantes de plazas
+     * de una red de petri.
+     * @param invP Invariante a escribir
+     */
+    public void logP(String invP) {
+        try {
+            file = new FileWriter(LOG_PLACES, true);
+            PrintWriter printWriter = new PrintWriter(file);
+            printWriter.printf("%s", invP);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Método clear
      * Limpia el archivo log de la simulación.
      */
@@ -69,6 +92,11 @@ public class Logger {
             PrintWriter writer = new PrintWriter(file);
             writer.print("");
             writer.close();
+
+            file = new FileWriter(LOG_PLACES);
+            PrintWriter writer1 = new PrintWriter(file);
+            writer1.print("");
+            writer1.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

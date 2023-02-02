@@ -2,6 +2,7 @@ package Monitor;
 
 import Data.Logger;
 import Logic.Petrinet;
+import Logic.Place;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -74,7 +75,8 @@ public class Monitor {
             // Dispara la transición cuando se habilita
             petrinet.fireTransition(t,log);
 
-
+            // Chequeamos que se cumplan los Invariantes de Plaza
+            checkPlaceInv(log);
 
             // Incrementamos el valor de la transición disparada
             incrementInvariant(t);
@@ -105,7 +107,7 @@ public class Monitor {
         // Incrementamos el valor de la transición disparada
         invariants.put(t,invariants.get(t)+1);
 
-        // TODO REVISAR
+        // TODO MEJORAR
         int[] inv1 = {9,10,11,12};
         int[] inv2 = {1,3,5,7,8};
         int[] inv3 = {1,2,4,6,8};
@@ -135,6 +137,82 @@ public class Monitor {
         }
 
         if(aux == inv.length) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Método checkPlaceInv
+     * Chequea que se cumplan los invariantes de plaza de la red
+     * @param log Logger para escribir la información
+     */
+    public synchronized void checkPlaceInv(Logger log) {
+        // Invariantes de transición TODO MEJORAR
+        String[] invP1 = {"P10","P11","P8","P9"};               // = 4
+        String[] invP2 = {"P1","P10","P12"};                    // = 2
+        String[] invP3 = {"P13","P2","P3","P9"};                // = 2
+        String[] invP4 = {"P14","P4","P5","P8"};                // = 3
+        String[] invP5 = {"P15","P6"};                          // = 1
+        String[] invP6 = {"P1","P2","P3","P4","P5","P6","P7"};  // = 4
+        String[] invP7 = {"P1","P9","Cs1"};                     // = 3
+        String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
+        String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
+
+        if(!sumInvP(invP1,4,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP2,2,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP3,2,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP4,3,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP5,1,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP6,4,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP7,3,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP8,4,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+        if(!sumInvP(invP9,6,log)) {
+            log.logP("Error en Invariante de plaza.");
+        }
+
+    }
+
+    /**
+     * Método sumInvP
+     * Suma los tokens de los invariantes de plazas señalados en el array
+     * invP y compara el resultado con "num".
+     * @param invP Array de plazas del invariante
+     * @param num Número al que debe igualarse la suma de sus tokens
+     * @return True en caso de ser igual a num
+     */
+    public synchronized boolean sumInvP(String[] invP, int num, Logger log) {
+        int sum = 0;
+
+        log.logP("\nInvariantes de Plaza: ");
+        for(int i = 0; i < invP.length; i++){
+            for(Place p : petrinet.getPlaces()) {
+                if(p.getName().equals(invP[i])) {
+                    log.logP(p.getName() + " ");
+                    sum += p.getTokens();
+                }
+            }
+        }
+
+        if(sum == num) {
+            log.logP("= " + sum);
             return true;
         } else {
             return false;

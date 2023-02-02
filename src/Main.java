@@ -1,6 +1,7 @@
 import Data.*;
 import Executor.Segment;
 import Logic.Petrinet;
+import Logic.Place;
 import Monitor.Monitor;
 
 import java.io.BufferedReader;
@@ -48,7 +49,7 @@ public class Main {
         pn.setPlaceName("P17", "Cs2");
         pn.setPlaceName("P18", "Cs3");
 
-        // Creamos un array con los invariantes y un mapa para contar su ejecución TODO MEJORAR
+        // Creamos un array con los invariantes de transición y un mapa para contar su ejecución TODO MEJORAR
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
         int maxInv = 1000;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
@@ -56,6 +57,17 @@ public class Main {
         for(int i = 0; i < invT.length; i++) {
             invariants.put(invT[i], 0);
         }
+
+        // Creamos un array con los invariantes de plazas y un mapa para contar su ejecución
+        String[] invP1 = {"P10","P11","P8","P9"};               // = 4
+        String[] invP2 = {"P1","P10","P12"};                    // = 2
+        String[] invP3 = {"P13","P2","P3","P9"};                // = 2
+        String[] invP4 = {"P14","P4","P5","P8"};                // = 3
+        String[] invP5 = {"P15","P6"};                          // = 1
+        String[] invP6 = {"P1","P2","P3","P4","P5","P6","P7"};  // = 4
+        String[] invP7 = {"P1","P9","Cs1"};                     // = 3
+        String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
+        String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
 
         /**
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con

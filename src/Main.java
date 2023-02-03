@@ -209,7 +209,7 @@ public class Main {
         for(int i : pn.getMarkings()){
             System.out.printf("%d - ",i);
         }
-        System.out.println("");
+        System.out.println();
 
         // Imprimimos info sobre los invariantes disparados
         monitor.printAmountForInv();

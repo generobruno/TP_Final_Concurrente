@@ -1,6 +1,5 @@
 package Net;
 
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,10 +14,10 @@ import Logic.*;
 public class PetrinetGUI
         extends JFrame {
 
-    public class PlaceLabel
+    public static class PlaceLabel
             extends JLabel {
 
-        private Place place;
+        private final Place place;
 
         public PlaceLabel(Place p) {
             super(p.toString());
@@ -38,7 +37,7 @@ public class PetrinetGUI
 
     public class TransitionButton extends JButton {
 
-        private Transition transition;
+        private final Transition transition;
 
         public TransitionButton(final Transition t) {
             super(t.getName());
@@ -73,7 +72,7 @@ public class PetrinetGUI
     }
 
 
-    Petrinet pn;
+    final Petrinet pn;
 
     public PetrinetGUI(Petrinet pn) {
         super(pn.getName());

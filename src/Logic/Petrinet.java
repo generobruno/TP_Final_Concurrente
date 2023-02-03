@@ -12,13 +12,13 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Petrinet extends PetrinetObject {
 
     // Lista de plazas
-    private List<Place> places              = new ArrayList<Place>();
+    private final List<Place> places              = new ArrayList<Place>();
     // Lista de transiciones
-    private List<Transition> transitions    = new ArrayList<Transition>();
+    private final List<Transition> transitions    = new ArrayList<Transition>();
     // Lista de arcos
-    private List<Arc> arcs                  = new ArrayList<Arc>();
+    private final List<Arc> arcs                  = new ArrayList<Arc>();
     // Lista de arcos inhibidores
-    private List<InhibitorArc> inhibitors   = new ArrayList<InhibitorArc>();
+    private final List<InhibitorArc> inhibitors   = new ArrayList<InhibitorArc>();
     // Invariantes de transición
     List<int[]> invariantsT = new ArrayList<int[]>();
     // Invariantes de plaza
@@ -32,7 +32,7 @@ public class Petrinet extends PetrinetObject {
     // Transiciones habilitadas
     private int[] enableTransitions;
     // Lista con todos los estados simulados
-    Set<List<Integer>> states = new HashSet<List<Integer>>();
+    final Set<List<Integer>> states = new HashSet<List<Integer>>();
 
     private static final String nl = "\n";
 
@@ -106,11 +106,7 @@ public class Petrinet extends PetrinetObject {
      *         False en caso contrario
      */
     public boolean isEnabled(int transition) {
-        if(enableTransitions[(transition - 1)] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return 1 == enableTransitions[(transition - 1)];
     }
 
     /**
@@ -124,27 +120,26 @@ public class Petrinet extends PetrinetObject {
     public void printVectorE() {
         System.out.printf("------------- Enabled Transitions ---------------\n");
 
-        for(int i = 0; i < transitions.size(); i++) {
-            System.out.printf( "%s ", transitions.get(i).getName());
+        for (Transition transition : transitions) {
+            System.out.printf("%s ", transition.getName());
         }
 
         System.out.println("");
 
-        for(int i = 0; i < enableTransitions.length; i++) {
-            System.out.printf( " %d ", enableTransitions[i] );
+        for (int enableTransition : enableTransitions) {
+            System.out.printf(" %d ", enableTransition);
         }
     }
 
     /**
      * Método transition
      * Crea una transición y la agrega a la red
+     *
      * @param name Nombre de la transición
-     * @return Transición
      */
-    public Transition transition(String name) {
+    public void transition(String name) {
         Transition t = new Transition(name);
         transitions.add(t);
-        return t;
     }
 
     /**
@@ -162,14 +157,13 @@ public class Petrinet extends PetrinetObject {
     /**
      * Método place
      * Crea una plaza y la agrega a la red
-     * @param name Nombre de la plaza
+     *
+     * @param name    Nombre de la plaza
      * @param initial Tokens iniciales
-     * @return Plaza
      */
-    public Place place(String name, int initial) {
+    public void place(String name, int initial) {
         Place p = new Place(name, initial);
         places.add(p);
-        return p;
     }
 
     /**
@@ -366,34 +360,22 @@ public class Petrinet extends PetrinetObject {
      * @param pn Red de Petri
      */
     public void createNet(int t, int p, int[][] incidence, int[] state, Petrinet pn) {
-        // Cantidad de Transiciones
-        int cantT = t;
-        // Cantidad de Plazas
-        int cantP = p;
-
-        // Matriz de Incidencia : 15 plazas (filas), 12 transiciones (columnas)
-        int[][] incidenceMatrix = incidence;
-        // Marcado inicial
-        int[] initialMarks = state;
-
         // Crea las transiciones
-        pn.generateTransitions(cantT, pn);
+        pn.generateTransitions(t, pn);
 
         // Crea las plazas y asigna sus tokens
-        pn.generatePlaces(initialMarks,cantP,pn);
+        pn.generatePlaces(state, p,pn);
 
         // Asignamos el estado inicial
-        this.initialState = new int[cantP];
-        for(int i = 0; i < cantP; i++) {
-            initialState[i] = state[i];
-        }
+        this.initialState = new int[p];
+        System.arraycopy(state, 0, initialState, 0, p);
 
         // Agrega el estado inicial a la lista
         List<Integer> marksClone = cloneStates(state);
         this.states.add(marksClone);
 
         // Asigna la matriz de incidencia
-        pn.AssignIncidence(incidenceMatrix, cantP, cantT);
+        pn.AssignIncidence(incidence, p, t);
 
         // Asigna valores del vector E
         pn.getTransitionsAbleToFire();
@@ -410,8 +392,8 @@ public class Petrinet extends PetrinetObject {
     public List<Integer> cloneStates(int[] states) {
         ArrayList<Integer> clone = new ArrayList<Integer>();
 
-        for(int i = 0; i < states.length; i++) {
-            clone.add(states[i]);
+        for (int state : states) {
+            clone.add(state);
         }
 
         return clone;
@@ -437,8 +419,8 @@ public class Petrinet extends PetrinetObject {
         System.out.printf("The number of possible states are: %d \n", states.size());
 
         ArrayList<Integer> acts = new ArrayList<Integer>();
-        for(int i = 0; i < activityPlaces.length; i++) {
-            acts.add(activityPlaces[i]);
+        for (int activityPlace : activityPlaces) {
+            acts.add(activityPlace);
         }
 
         ArrayList<Integer> sumas = new ArrayList<>();
@@ -464,8 +446,8 @@ public class Petrinet extends PetrinetObject {
 
         System.out.printf("  ");
 
-        for(int i = 0; i < transitions.size(); i++) {
-            System.out.printf( "%s ", transitions.get(i).getName());
+        for (Transition transition : transitions) {
+            System.out.printf("%s ", transition.getName());
         }
 
         System.out.println("");
@@ -494,8 +476,8 @@ public class Petrinet extends PetrinetObject {
     public void printMarks() {
         System.out.printf("------------- Marking ---------------\n");
 
-        for(int i = 0; i < places.size(); i++) {
-            System.out.printf( "%s ", places.get(i).getName());
+        for (Place place : places) {
+            System.out.printf("%s ", place.getName());
         }
 
         System.out.println("");

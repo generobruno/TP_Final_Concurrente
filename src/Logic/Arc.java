@@ -8,11 +8,11 @@ package Logic;
 public class Arc extends PetrinetObject {
 
     // Plaza que el arco conecta
-    private Place place;
+    private final Place place;
     // Transición que el arco conecta
-    private Transition transition;
+    private final Transition transition;
     // Dirección del arco
-    private Direction direction;
+    private final Direction direction;
     // Peso del arco
     private int weight = 1;
 

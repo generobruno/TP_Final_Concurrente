@@ -1,10 +1,7 @@
 package Executor;
 
-import Data.Logger;
 import Logic.Petrinet;
 import Monitor.Monitor;
-
-import java.util.Arrays;
 
 /**
  * Clase Segment
@@ -17,7 +14,7 @@ public class Segment implements Runnable{
     // Red de Petri simulada
     private final Petrinet petrinet;
     // Transiciones a disparar
-    int[] transitions;
+    final int[] transitions;
     // Boolean para terminar la ejecución
     private boolean finish;
 
@@ -39,9 +36,9 @@ public class Segment implements Runnable{
      * Dispara las transiciones asociadas al segmento
      */
     public void fireSegment() {
-        for(int i = 0; i < this.transitions.length; i++) {
+        for (int transition : this.transitions) {
             //System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
-            monitor.fireTransition(transitions[i]);
+            monitor.fireTransition(transition);
             //System.out.printf("Transition %d FIRED\n", transitions[i]);
         }
     }
@@ -63,16 +60,16 @@ public class Segment implements Runnable{
     public void run() {
 
         while(!finish) {
-            for(int i = 0; i < this.transitions.length; i++) {
+            for (int transition : this.transitions) {
                 //System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
-                monitor.fireTransition(transitions[i]);
+                monitor.fireTransition(transition);
                 //System.out.printf("Transition %d FIRED\n", transitions[i]);
 
                 // TODO COMO HACER QUE VUELVA AL ESTADO INICIAL
 
                 // Si se dispararon más de [invMax] invariantes, se detiene la ejecución
-                if( (monitor.isFinished()) ) {
-                    System.out.printf("%s Finished\n",Thread.currentThread().getName());
+                if ((monitor.isFinished())) {
+                    System.out.printf("%s Finished\n", Thread.currentThread().getName());
                     finish = true;
                     break;
                 } else {

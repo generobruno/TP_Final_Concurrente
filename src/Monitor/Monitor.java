@@ -25,17 +25,17 @@ public class Monitor {
     // Mapa de transiciones de invariantes
     private final Map<Integer,Integer> invariantsFired;
     // Lista con los invariantes de transición
-    List<int[]> invariantsT;
+    final List<int[]> invariantsT;
     // Mapa con los invariantes de plaza
-    Map<String[],Integer> invariantsP;
+    final Map<String[],Integer> invariantsP;
     // Cantidad máxima de invariantes a disparar
     private final int maxInv;
     // Cantidad de invariantes disparadas
     private int invFired;
     // Disparos de los distintos invariantes
-    private int[] amountForInv;
+    private final int[] amountForInv;
     // Logger
-    private Logger log;
+    private final Logger log;
 
     /**
      * Constructor de la clase
@@ -156,12 +156,10 @@ public class Monitor {
         }
 
         if(aux == inv.length) {
-
             // Reiniciamos los puntos del invariante
-            for(int i = 0; i < inv.length; i++) {
-                invariantsFired.put(inv[i], 0);
+            for (int j : inv) {
+                invariantsFired.put(j, 0);
             }
-
             return true;
         } else {
             return false;
@@ -197,9 +195,9 @@ public class Monitor {
         int sum = 0;
 
         log.logP("\nInvariantes de Plaza: ");
-        for(int i = 0; i < invP.length; i++){
-            for(Place p : petrinet.getPlaces()) {
-                if(p.getName().equals(invP[i])) {
+        for (String s : invP) {
+            for (Place p : petrinet.getPlaces()) {
+                if (p.getName().equals(s)) {
                     log.logP(p.getName() + " ");
                     sum += p.getTokens();
                 }
@@ -244,9 +242,8 @@ public class Monitor {
 
     // TODO REVISAR
     public boolean homeState() {
-        boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
 
-        return homeState;
+        return (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
     }
 
 

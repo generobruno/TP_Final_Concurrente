@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class Transition extends PetrinetObject {
     // Lista de arcos de entrada
-    private List<Arc> incoming = new ArrayList<Arc>();
+    private final List<Arc> incoming = new ArrayList<Arc>();
     // Lista de arcos de salida
-    private List<Arc> outgoing = new ArrayList<Arc>();
+    private final List<Arc> outgoing = new ArrayList<Arc>();
 
     /**
      * Constructor de la clase

@@ -34,6 +34,8 @@ public class Monitor {
     private int invFired;
     // Disparos de los distintos invariantes
     private final int[] amountForInv;
+    // Disparos de las distintas transiciones
+    private final int[] amountForTrans;
     // Logger
     private final Logger log;
 
@@ -54,6 +56,8 @@ public class Monitor {
         this.maxInv = maxInv;
         // Array con disparos por invariante
         amountForInv = new int[invariantsT.size()];
+        // Array con disparos por transición
+        amountForTrans = new int[inv.size()];
         // Invariantes disparadas
         invFired = 0;
         // Logger
@@ -100,6 +104,7 @@ public class Monitor {
 
             // Dispara la transición cuando se habilita
             petrinet.fireTransition(t,log);
+            amountForTrans[(t-1)]++;
 
             // Chequeamos que se cumplan los Invariantes de Plaza
             checkPlaceInv(t,log);
@@ -237,13 +242,25 @@ public class Monitor {
 
     /**
      * Método printAmountForInv
-     * Imprime información sobre los invariantes disparados
+     * Imprime información sobre los invariantes y las transiciones disparadas
      */
     public void printAmountForInv() {
-        System.out.print("\nCarga en los invariantes:\n");
+        // Información de invariantes
+        System.out.printf("\nTotal de invariantes disparados: %d\n",getInvFired());
+        System.out.print("Carga en los invariantes:\n");
         for(int i = 0; i < amountForInv.length; i++) {
             float percentage = (float) amountForInv[i]/getInvFired();
             System.out.printf("Invariante %d: Disparado %d veces ( %.3f %% )\n", (i+1), amountForInv[i], percentage);
+        }
+
+        System.out.println();
+
+        // Información de transiciones
+        int totalTrans = Arrays.stream(amountForTrans).sum();
+        System.out.printf("Total de Transiciones disparadas: %d\n",totalTrans);
+        for(int i = 0; i < amountForTrans.length; i++) {
+            float percentage = (float) amountForTrans[i]/totalTrans;
+            System.out.printf("Transición %d: Disparada %d veces ( %.3f %% )\n", (i+1), amountForTrans[i], percentage);
         }
     }
 

@@ -161,6 +161,9 @@ public class Main {
             }
         }
 
+        // Empezamos a medir el tiempo
+        long startTime = System.nanoTime();
+
         // Lanzamos los hilos
         for(int i = 0; i < threadAmount; i++) {
             threads[i].start();
@@ -179,6 +182,9 @@ public class Main {
                 e.printStackTrace();
             }
         }
+
+        // Termina ejecución de los hilos
+        long endTime = System.nanoTime();
 
         // El hilo main dispara transiciones hasta volver el estado inicial, para el script
         System.out.println("\nVolviendo al estado inicial...");
@@ -236,7 +242,8 @@ public class Main {
         }
 
         // Termina la ejecución
-        System.out.println("\nFIN.");
+        long timeTaken = (endTime - startTime)/1000000;
+        System.out.printf("\nFIN - Tiempo de ejecución: %d [ms].", timeTaken);
 
     }
 }

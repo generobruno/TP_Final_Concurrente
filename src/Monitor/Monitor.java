@@ -244,7 +244,7 @@ public class Monitor {
      * Método printAmountForInv
      * Imprime información sobre los invariantes y las transiciones disparadas
      */
-    public void printAmountForInv() {
+    public void printInfo() {
         // Información de invariantes
         System.out.printf("\nTotal de invariantes disparados: %d\n",getInvFired());
         System.out.print("Carga en los invariantes:\n");

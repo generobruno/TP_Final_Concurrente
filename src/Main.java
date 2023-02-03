@@ -213,7 +213,7 @@ public class Main {
         System.out.println();
 
         // Imprimimos info sobre los invariantes disparados
-        monitor.printAmountForInv();
+        monitor.printInfo();
 
         // Agregamos los estados alcanzados al log de invP
         System.out.println("\nAgregando los estados al log...");

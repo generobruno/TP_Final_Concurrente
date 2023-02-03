@@ -206,9 +206,9 @@ public class Main {
         if(!Arrays.equals(pn.getInitialState(),pn.getMarkings())) {
             System.out.println("ERROR");
         }
-        System.out.print("Petri Net State\n");
+        System.out.print("Petri Net Final State\n");
         for(int i : pn.getMarkings()){
-            System.out.printf("%d - ",i);
+            System.out.printf("%d ",i);
         }
         System.out.println();
 

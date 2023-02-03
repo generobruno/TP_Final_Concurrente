@@ -84,6 +84,13 @@ public class Monitor {
         // Entra un thread y toma el lock
         mutex.lock();
 
+        /*
+        System.out.flush();
+        System.out.printf("Wait queue length: %s\n",mutex.getWaitQueueLength(waitQueue));
+        System.out.printf("Wait hold count: %d\n",mutex.getHoldCount());
+        System.out.flush();
+        */
+
         try {
 
             // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
@@ -127,7 +134,7 @@ public class Monitor {
         // Incrementamos el valor de la transición disparada
         invariantsFired.put(t, invariantsFired.get(t)+1);
 
-        if(!isFinished()) { // TODO LOG LO QUE SE IMPRIMIA
+        if(!isFinished()) { // TODO LOG LO QUE SE IMPRIMÍA
             for(int i = 0; i < invariantsT.size(); i++) {
                 if(checkInvariant(invariantsT.get(i))) {
                     invFired++;
@@ -233,7 +240,7 @@ public class Monitor {
      * Imprime información sobre los invariantes disparados
      */
     public void printAmountForInv() {
-        System.out.printf("\nCarga en los invariantes:\n");
+        System.out.print("\nCarga en los invariantes:\n");
         for(int i = 0; i < amountForInv.length; i++) {
             float percentage = (float) amountForInv[i]/getInvFired();
             System.out.printf("Invariante %d: Disparado %d veces ( %.3f %% )\n", (i+1), amountForInv[i], percentage);
@@ -241,10 +248,11 @@ public class Monitor {
     }
 
     // TODO REVISAR
+    /*
     public boolean homeState() {
-
         return (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
     }
+    */
 
 
 }

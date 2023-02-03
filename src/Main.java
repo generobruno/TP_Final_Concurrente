@@ -171,6 +171,7 @@ public class Main {
         }
 
         // El hilo main dispara transiciones hasta volver el estado inicial, para el script
+        System.out.println("\nVolviendo al estado inicial...");
         pn.fireContinuously(log);
 
         // Ejecutamos el script
@@ -213,6 +214,19 @@ public class Main {
 
         // Imprimimos info sobre los invariantes disparados
         monitor.printAmountForInv();
+
+        // Agregamos los estados alcanzados al log de invP
+        System.out.println("\nAgregando los estados al log...");
+        log.logP("Estados alcanzados por el sistema (" + pn.getAllStates().size() + "):\n");
+        for(List<Integer> list : pn.getAllStates()) {
+            for(int i : list) {
+                log.logP(list.get(i) + " ");
+            }
+            log.logP("\n");
+        }
+
+        // Termina la ejecución
+        System.out.println("\nFIN.");
 
     }
 }

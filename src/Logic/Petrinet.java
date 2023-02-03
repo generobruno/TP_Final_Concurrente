@@ -544,7 +544,6 @@ public class Petrinet extends PetrinetObject {
     public void fireContinuously(Logger log) {
 
         boolean deadlock = false;
-        int[] initial = {0,0,0,0,0,0,4,0,0,0,4,2,2,3,1,3,4,6};
         while(!deadlock) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
@@ -570,7 +569,7 @@ public class Petrinet extends PetrinetObject {
             }
 
             // Luego de volver al estado inicial 10 veces, se detiene
-            if(Arrays.equals(this.getMarkings(), initial)){
+            if(Arrays.equals(getMarkings(), initialState)){
                 System.out.printf("------ Vuelta al comienzo -------\n");
                 deadlock = true;
             }

@@ -134,7 +134,7 @@ public class Monitor {
         // Incrementamos el valor de la transición disparada
         invariantsFired.put(t, invariantsFired.get(t)+1);
 
-        if(!isFinished()) { // TODO LOG LO QUE SE IMPRIMÍA
+        if(!isFinished()) { // TODO LOG LO QUE SE IMPRIMÍA Y REVISAR TRANSICIONES QUE COMPARTEN INVARIANTE
             for(int i = 0; i < invariantsT.size(); i++) {
                 if(checkInvariant(invariantsT.get(i))) {
                     invFired++;

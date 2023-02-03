@@ -508,11 +508,16 @@ public class Petrinet extends PetrinetObject {
         if(t.canFire()) {
             // Dispara la transición si es posible
             t.fire();
-            // Registramos el disparo
+            // Registramos el disparo TODO Si es timed, escribir en otro log o el mismo?
             log.logT(t.getName());
             // Actualiza la red
             updateNet(transition);
+        } else {
+            if(t.isTimed()) {
+                System.out.printf("T%d Desensibilizada\n", transition);
+            }
         }
+
     }
 
     /**
@@ -529,6 +534,10 @@ public class Petrinet extends PetrinetObject {
             t.fire();
             // Actualiza la red
             updateNet(transition);
+        } else {
+            if(t.isTimed()) {
+                System.out.printf("T%d Desensibilizada\n", transition);
+            }
         }
     }
 
@@ -540,18 +549,18 @@ public class Petrinet extends PetrinetObject {
      * Imprime en el log una lista con la secuencia
      * de Transiciones disparadas.
      * @param log Log para las transiciones
+     * @param returnHome True si queremos que se detenga cuando vuelva al estado inicial
+     *                   False si queremos que se detenga cuando hay deadlock
      */
-    public void fireContinuously(Logger log) {
+    public void fireContinuously(Logger log, boolean returnHome) {
 
         boolean deadlock = false;
         while(!deadlock) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
-            Transition t = transitions.get(i-1);
-            if(t.canFire()){
-                log.logT(t.getName());
-            }
-            fireTransition(i);
+            fireTransition(i,log);
+
+            // Vemos las transiciones habilitadas
             int[] enabled = getEnableTransitions();
             int test = 0;
 
@@ -562,20 +571,23 @@ public class Petrinet extends PetrinetObject {
                 }
             }
 
-            // Si no hay ninguna habilitada -> Deadlock
-            if(test == transitions.size()) {
-                System.out.println("---------- DEADLOCK ----------");
-                deadlock = true;
-            }
-
-            // Luego de volver al estado inicial 10 veces, se detiene
-            if(Arrays.equals(getMarkings(), initialState)){
-                System.out.printf("------ Vuelta al comienzo -------\n");
-                deadlock = true;
+            if(returnHome) {
+                // Luego de volver al estado inicial 10 veces, se detiene
+                if(Arrays.equals(getMarkings(), initialState)){
+                    System.out.printf("------ Vuelta al comienzo -------\n");
+                    deadlock = true;
+                }
+            } else {
+                // Si no hay ninguna habilitada -> Deadlock
+                if(test == transitions.size()) {
+                    System.out.println("---------- DEADLOCK ----------");
+                    deadlock = true;
+                }
             }
 
         }
     }
+
 
     /**
      * Método fireContinuouslyTimed
@@ -592,8 +604,9 @@ public class Petrinet extends PetrinetObject {
         while(!deadlock && (System.currentTimeMillis() <  endTime)) {
             // Disparamos transición
             int i = ThreadLocalRandom.current().nextInt(1,13);
-            log.logT(transitions.get(i-1).getName());
-            fireTransition(i);
+            fireTransition(i,log);
+
+            // Vemos las transiciones habilitadas
             int[] enabled = getEnableTransitions();
             int test = 0;
 
@@ -612,6 +625,21 @@ public class Petrinet extends PetrinetObject {
 
         }
 
+    }
+
+    /**
+     * Método setTransitionTime
+     * Asigna tiempo de sensibilizado a una transición
+     * @param name Nombre de la transición
+     * @param timeFrame Tiempo de sensibilizado [ms]
+     */
+    public void setTransitionTime(String name, long timeFrame) {
+        for(Transition t : transitions) {
+            if(t.getName().equals(name)) {
+                t.setTimeFrame(timeFrame);
+                break;
+            }
+        }
     }
 
     /**

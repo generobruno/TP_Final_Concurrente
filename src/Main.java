@@ -46,6 +46,16 @@ public class Main {
         pn.setPlaceName("P17", "Cs2");
         pn.setPlaceName("P18", "Cs3");
 
+        // Asignamos tiempo de sensibilizado a las transiciones
+        pn.setTransitionTime("T4",100);
+        pn.setTransitionTime("T5",100);
+        pn.setTransitionTime("T6",100);
+        pn.setTransitionTime("T7",100);
+        pn.setTransitionTime("T8",100);
+        pn.setTransitionTime("T10",100);
+        pn.setTransitionTime("T11",100);
+        pn.setTransitionTime("T12",100);
+
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
         int maxInv = 100;
@@ -172,7 +182,7 @@ public class Main {
 
         // El hilo main dispara transiciones hasta volver el estado inicial, para el script
         System.out.println("\nVolviendo al estado inicial...");
-        pn.fireContinuously(log);
+        pn.fireContinuously(log,true);
 
         // Ejecutamos el script
         try {

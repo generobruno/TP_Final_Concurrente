@@ -54,7 +54,7 @@ public class Test {
         System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
         // Disparamos hasta deadlock
-        pn.fireContinuously(log);
+        pn.fireContinuously(log,false);
 
         // Imprimimos información sobre los estados
         int[] activityPlaces = {1,2,3,4,5,6,8,9,10};

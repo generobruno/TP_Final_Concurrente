@@ -32,7 +32,7 @@ public class NetV1 {
         pn.createNet(cantT, cantP, incidenceMatrix, initialMarks, pn);
 
         // Disparamos hasta deadlock
-        pn.fireContinuously(log);
+        pn.fireContinuously(log,false);
         //pn.fireContinuouslyTimed(log, 10);
 
         // Imprimimos información sobre los estados

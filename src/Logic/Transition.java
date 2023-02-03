@@ -12,6 +12,12 @@ public class Transition extends PetrinetObject {
     private final List<Arc> incoming = new ArrayList<Arc>();
     // Lista de arcos de salida
     private final List<Arc> outgoing = new ArrayList<Arc>();
+    // Ventana de sensibilizado por tiempo
+    private long timeFrame;
+    // Momento del último disparo
+    private long firedTime;
+    // Temporizada
+    private boolean timed = false;
 
     /**
      * Constructor de la clase
@@ -22,9 +28,27 @@ public class Transition extends PetrinetObject {
     }
 
     /**
+     * Método setTimeFrame
+     * @param timeFrame Tiempo de sensibilizado [ms]
+     */
+    public void setTimeFrame(long timeFrame) {
+        this.timed = true;
+        this.timeFrame = (timeFrame*1000000); // TODO REVISAR
+    }
+
+    /**
+     * Método isTimed
+     * @return True en caso de estar temporizada
+     */
+    public boolean isTimed() {
+        return timed;
+    }
+
+    /**
      * Método canFire
      * Una transición solo puede dispararse si tiene arcos
-     * conectados.
+     * conectados y si está dentro de su ventana de sensibilizado,
+     * en caso de tener una.
      * @return True en caso de poder dispararse
      */
     public boolean canFire() {
@@ -38,6 +62,13 @@ public class Transition extends PetrinetObject {
 
         for(Arc arc : outgoing) {
             canFire = canFire & arc.canFire();
+        }
+
+        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
+        if(canFire && timed) {
+            long timeTaken = (System.nanoTime() - firedTime)/1000000;
+            System.out.printf("Tiempo %s - %d[ms]\n",this.getName(),timeTaken);
+            canFire = (timeTaken <= timeFrame);
         }
 
         return canFire;
@@ -55,6 +86,11 @@ public class Transition extends PetrinetObject {
 
         for(Arc arc : outgoing) {
             arc.fire();
+        }
+
+        // Momento del disparo TODO REVISAR
+        if(timed) {
+            this.firedTime = System.nanoTime();
         }
     }
 

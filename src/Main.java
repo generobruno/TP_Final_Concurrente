@@ -6,9 +6,7 @@ import Monitor.Monitor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Clase Main
@@ -48,15 +46,63 @@ public class Main {
         pn.setPlaceName("P17", "Cs2");
         pn.setPlaceName("P18", "Cs3");
 
-        // Creamos un array con los invariantes de transición y un mapa para contar su ejecución TODO MEJORAR
+        // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int maxInv = 1000;
+        int maxInv = 100;
+        int invTAmount = 3;
+        int invPAmount = 9;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
-        Map<Integer,Integer> invariants = new HashMap<>();
+        Map<Integer,Integer> invariantsTMap = new HashMap<>();
         for (int k : invT) {
-            invariants.put(k, 0);
+            invariantsTMap.put(k, 0);
         }
 
+        // Invariantes de transición TODO MEJORAR
+        List<int[]> invariants = new ArrayList<>();
+        int[] invT1 = {9,10,11,12};
+        int[] invT2 = {1,3,5,7,8};
+        int[] invT3 = {1,2,4,6,8};
+        invariants.add(invT1);
+        invariants.add(invT2);
+        invariants.add(invT3);
+        // Asociamos los invariantes a la red
+        pn.addInvariantsT(invariants);
+
+        // Chequeo de lista de invariantes T
+        if(invariants.size() != invTAmount) {
+            System.out.println("Error en la cantidad de invariantes.");
+            System.exit(1);
+        }
+
+        // Invariantes de plaza TODO MEJORAR
+        Map<String[],Integer> invariantsPMap = new HashMap<>();
+        int[] invPTokens =  {4,2,2,3,1,4,3,4,6};
+        String[] invP1 = {"P10","P11","P8","P9"};               // = 4
+        invariantsPMap.put(invP1,invPTokens[0]);
+        String[] invP2 = {"P1","P10","P12"};                    // = 2
+        invariantsPMap.put(invP2,invPTokens[1]);
+        String[] invP3 = {"P13","P2","P3","P9"};                // = 2
+        invariantsPMap.put(invP3,invPTokens[2]);
+        String[] invP4 = {"P14","P4","P5","P8"};                // = 3
+        invariantsPMap.put(invP4,invPTokens[3]);
+        String[] invP5 = {"P15","P6"};                          // = 1
+        invariantsPMap.put(invP5,invPTokens[4]);
+        String[] invP6 = {"P1","P2","P3","P4","P5","P6","P7"};  // = 4
+        invariantsPMap.put(invP6,invPTokens[5]);
+        String[] invP7 = {"P1","P9","Cs1"};                     // = 3
+        invariantsPMap.put(invP7,invPTokens[6]);
+        String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
+        invariantsPMap.put(invP8,invPTokens[7]);
+        String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
+        invariantsPMap.put(invP9,invPTokens[8]);
+        // Asociamos los invariantes a la red
+        pn.addInvariantsP(invariantsPMap);
+
+        // Chequeo de lista de invariantes P
+        if(invariantsPMap.size() != invPAmount) {
+            System.out.println("Error en la cantidad de invariantes.");
+            System.exit(1);
+        }
 
         /*
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con
@@ -65,7 +111,7 @@ public class Main {
          */
 
         // Creamos el monitor y le asignamos la red
-        Monitor monitor = new Monitor(pn, invariants, maxInv, log);
+        Monitor monitor = new Monitor(pn, invariantsTMap, maxInv, log);
 
         // Cantidad de hilos y de segmentos resultado del análisis de la red
         int threadAmount = 18;
@@ -139,7 +185,7 @@ public class Main {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
             // Leemos la salida del programa
-            System.out.println("Resultado del Script: ");
+            System.out.println("\nResultado del Script: ");
             String s;
             while((s = stdInput.readLine()) != null) {
                 System.out.println(s);
@@ -163,7 +209,10 @@ public class Main {
         for(int i : pn.getMarkings()){
             System.out.printf("%d - ",i);
         }
+        System.out.println("");
 
+        // Imprimimos info sobre los invariantes disparados
+        monitor.printAmountForInv();
 
     }
 }

@@ -5,6 +5,7 @@ import Logic.Petrinet;
 import Logic.Place;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,11 +23,17 @@ public class Monitor {
     // Cola de condiciones
     private final Condition waitQueue;
     // Mapa de transiciones de invariantes
-    private final Map<Integer,Integer> invariants;
+    private final Map<Integer,Integer> invariantsFired;
+    // Lista con los invariantes de transición
+    List<int[]> invariantsT;
+    // Mapa con los invariantes de plaza
+    Map<String[],Integer> invariantsP;
     // Cantidad máxima de invariantes a disparar
     private final int maxInv;
     // Cantidad de invariantes disparadas
     private int invFired;
+    // Disparos de los distintos invariantes
+    private int[] amountForInv;
     // Logger
     private Logger log;
 
@@ -34,13 +41,26 @@ public class Monitor {
      * Constructor de la clase
      * @param pn Red de Petri
      */
-    public Monitor(Petrinet pn, Map<Integer,Integer> inv, int invAm, Logger logger) {
+    public Monitor(Petrinet pn, Map<Integer,Integer> inv, int maxInv, Logger logger) {
+        // Asociamos red de Petri
         petrinet = pn;
-        invariants = inv;
-        maxInv = invAm;
+        // Mapa de invariantes y cantidad de ejecuciones
+        invariantsFired = inv;
+        // Invariantes de transición
+        this.invariantsT = pn.getInvariantsT();
+        // Invariantes de plaza
+        this.invariantsP = pn.getInvariantsP();
+        // Número de invariantes a disparar
+        this.maxInv = maxInv;
+        // Array con disparos por invariante
+        amountForInv = new int[invariantsT.size()];
+        // Invariantes disparadas
         invFired = 0;
+        // Logger
         log = logger;
+        // Lock para exclusión mutua
         mutex = new ReentrantLock();
+        // Cola de condiciones
         waitQueue = mutex.newCondition();
     }
 
@@ -99,24 +119,24 @@ public class Monitor {
     /**
      * Método incrementInvariant
      * Luego de disparar una transición se incrementa el invariante
-     * al que pertenece esta transición.
+     * al que pertenece esta transición y la cantidad de disparos
+     * por invariante respectiva.
      * @param t Transición disparada
      */
     public void incrementInvariant(int t) {
         // Incrementamos el valor de la transición disparada
-        invariants.put(t,invariants.get(t)+1);
+        invariantsFired.put(t, invariantsFired.get(t)+1);
 
-        // TODO MEJORAR
-        int[] inv1 = {9,10,11,12};
-        int[] inv2 = {1,3,5,7,8};
-        int[] inv3 = {1,2,4,6,8};
-
-        if(checkInvariant(inv1))
-            invFired++;
-        if(checkInvariant(inv2))
-            invFired++;
-        if(checkInvariant(inv3))
-            invFired++;
+        if(!isFinished()) { // TODO LOG LO QUE SE IMPRIMIA
+            for(int i = 0; i < invariantsT.size(); i++) {
+                if(checkInvariant(invariantsT.get(i))) {
+                    invFired++;
+                    amountForInv[i]++;
+                    //System.out.printf("Invariante %d (T%d): Disparado %d veces", (i+1), t, amountForInv[i]);
+                    //System.out.printf(" [%s]\n",Thread.currentThread().getName());
+                }
+            }
+        }
 
     }
 
@@ -130,12 +150,18 @@ public class Monitor {
     public boolean checkInvariant(int[] inv) {
         int aux = 0;
         for(int i : inv) {
-            if(invariants.get(i) >= 1){
+            if(invariantsFired.get(i) >= 1){
                 aux++;
             }
         }
 
         if(aux == inv.length) {
+
+            // Reiniciamos los puntos del invariante
+            for(int i = 0; i < inv.length; i++) {
+                invariantsFired.put(inv[i], 0);
+            }
+
             return true;
         } else {
             return false;
@@ -148,45 +174,12 @@ public class Monitor {
      * @param log Logger para escribir la información
      */
     public void checkPlaceInv(int t, Logger log) {
-        // Invariantes de transición TODO MEJORAR
-        String[] invP1 = {"P10","P11","P8","P9"};               // = 4
-        String[] invP2 = {"P1","P10","P12"};                    // = 2
-        String[] invP3 = {"P13","P2","P3","P9"};                // = 2
-        String[] invP4 = {"P14","P4","P5","P8"};                // = 3
-        String[] invP5 = {"P15","P6"};                          // = 1
-        String[] invP6 = {"P1","P2","P3","P4","P5","P6","P7"};  // = 4
-        String[] invP7 = {"P1","P9","Cs1"};                     // = 3
-        String[] invP8 = {"P2","P3","P8","Cs2"};                // = 4
-        String[] invP9 = {"P1","P2","P3","P8","P9","Cs3"};      // = 6
-
 
         log.logP("Disparo de T"+ t);
-        if(!sumInvP(invP1,4,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP2,2,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP3,2,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP4,3,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP5,1,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP6,4,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP7,3,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP8,4,log)) {
-            log.logP("Error en Invariante de plaza.");
-        }
-        if(!sumInvP(invP9,6,log)) {
-            log.logP("Error en Invariante de plaza.");
+        for(String[] s : invariantsP.keySet()) {
+            if(!sumInvP(s,invariantsP.get(s),log)) {
+                log.logP("Error en Invariante de plaza.");
+            }
         }
         log.logP("\n\n");
 
@@ -237,11 +230,24 @@ public class Monitor {
         return (invFired>=maxInv);
     }
 
+    /**
+     * Método printAmountForInv
+     * Imprime información sobre los invariantes disparados
+     */
+    public void printAmountForInv() {
+        System.out.printf("\nCarga en los invariantes:\n");
+        for(int i = 0; i < amountForInv.length; i++) {
+            float percentage = (float) amountForInv[i]/getInvFired();
+            System.out.printf("Invariante %d: Disparado %d veces ( %.3f %% )\n", (i+1), amountForInv[i], percentage);
+        }
+    }
+
     // TODO REVISAR
     public boolean homeState() {
         boolean homeState = (Arrays.equals(petrinet.getInitialState(), petrinet.getMarkings()));
 
         return homeState;
     }
+
 
 }

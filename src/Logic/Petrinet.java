@@ -19,6 +19,10 @@ public class Petrinet extends PetrinetObject {
     private List<Arc> arcs                  = new ArrayList<Arc>();
     // Lista de arcos inhibidores
     private List<InhibitorArc> inhibitors   = new ArrayList<InhibitorArc>();
+    // Invariantes de transición
+    List<int[]> invariantsT = new ArrayList<int[]>();
+    // Invariantes de plaza
+    Map<String[],Integer> invariantsP = new HashMap<>();
     // Matriz de Incidencia
     private int[][] incidenceMatrix;
     // Matriz de Marcado
@@ -635,6 +639,40 @@ public class Petrinet extends PetrinetObject {
      */
     public int[] getInitialState() {
         return initialState;
+    }
+
+    /**
+     * Método addInvariantsT
+     * Asocia a la red una lista con sus invariantes de transición
+     * @param invariantsT Lista de invariantes
+     */
+    public void addInvariantsT(List<int[]> invariantsT) {
+        this.invariantsT = invariantsT;
+    }
+
+    /**
+     * Método getInvariantsT
+     * @return Invariantes de transición de la red
+     */
+    public List<int[]> getInvariantsT() {
+        return invariantsT;
+    }
+
+    /**
+     * Método addInvariantsP
+     * Asocia a la red una lista con sus invariantes de plaza
+     * @param invariantsP Lista de invariantes
+     */
+    public void addInvariantsP(Map<String[],Integer> invariantsP) {
+        this.invariantsP = invariantsP;
+    }
+
+    /**
+     * Método getInvariantsP
+     * @return Invariantes de plaza de la red
+     */
+    public Map<String[],Integer> getInvariantsP() {
+        return invariantsP;
     }
 
     /**

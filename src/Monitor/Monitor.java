@@ -250,7 +250,7 @@ public class Monitor {
         System.out.print("Carga en los invariantes:\n");
         for(int i = 0; i < amountForInv.length; i++) {
             float percentage = (float) amountForInv[i]/getInvFired();
-            System.out.printf("Invariante %d: Disparado %d veces ( %.3f %% )\n", (i+1), amountForInv[i], percentage);
+            System.out.printf("Invariante %d: Disparado %d veces ( %3.2f %% )\n", (i+1), amountForInv[i], (percentage*100));
         }
 
         System.out.println();
@@ -260,7 +260,7 @@ public class Monitor {
         System.out.printf("Total de Transiciones disparadas: %d\n",totalTrans);
         for(int i = 0; i < amountForTrans.length; i++) {
             float percentage = (float) amountForTrans[i]/totalTrans;
-            System.out.printf("Transición %d: Disparada %d veces ( %.3f %% )\n", (i+1), amountForTrans[i], percentage);
+            System.out.printf("Transición %d: Disparada %d veces ( %3.3f %% )\n", (i+1), amountForTrans[i], (percentage*100));
         }
     }
 

@@ -34,6 +34,7 @@ public class Transition extends PetrinetObject {
     public void setTimeFrame(long timeFrame) {
         this.timed = true;
         this.timeFrame = (timeFrame*1000000); // TODO REVISAR
+        this.firedTime = -1;
     }
 
     /**
@@ -65,6 +66,10 @@ public class Transition extends PetrinetObject {
         }
 
         // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
+        if(firedTime == -1) {
+            firedTime = System.nanoTime();
+        }
+
         if(canFire && timed) {
             long timeTaken = (System.nanoTime() - firedTime)/1000000;
             System.out.printf("Tiempo %s - %d[ms]\n",this.getName(),timeTaken);

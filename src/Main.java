@@ -229,7 +229,7 @@ public class Main {
         System.out.println();
 
         // Imprimimos info sobre la ejecución del monitor
-        monitor.printInfo();
+        monitor.printInfo(invariants);
 
         // Agregamos los estados alcanzados al log de invP
         System.out.println("\nAgregando los estados al log...");

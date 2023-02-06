@@ -235,7 +235,7 @@ public class Monitor {
      * Método printAmountForInv
      * Imprime información sobre los invariantes y las transiciones disparadas
      */
-    public void printInfo() {
+    public void printInfo(List<int[]> invariants) {
         // Información de invariantes
         System.out.printf("\nTotal de invariantes disparados: %d\n",getInvFired());
         System.out.print("Carga en los invariantes:\n");
@@ -253,6 +253,21 @@ public class Monitor {
             float percentage = (float) amountForTrans[i]/totalTrans;
             System.out.printf("Transición %d: Disparada %d veces ( %3.3f %% )\n", (i+1), amountForTrans[i], (percentage*100));
         }
+
+        System.out.println();
+
+        // Transiciones por invariante
+        System.out.println("Total de transiciones por invariante:");
+        for(int i = 0; i < invariants.size(); i++) {
+            System.out.printf("Invariante %d: ( ",(i+1));
+            int sum = 0;
+            for(int j : invariants.get(i)) {
+                System.out.printf("T%d ",j);
+                sum += amountForTrans[(j-1)];
+            }
+            System.out.printf(") \n%d transiciones disparadas.\n", sum);
+        }
+
     }
 
 }

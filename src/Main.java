@@ -18,7 +18,8 @@ public class Main {
         /*
          *  Primero Creamos la Red de Petri, utilizando la matriz de incidencia
          *  y el vector de marcado en la carpeta "data" (V2). Las últimas 3 plazas
-         *  son de control (Csi).
+         *  son de control (Csi). Además, creamos listas con los invariantes de
+         *  plaza y de transición de la red.
          */
 
         // Red de Petri
@@ -47,18 +48,18 @@ public class Main {
         pn.setPlaceName("P18", "Cs3");
 
         // Asignamos tiempo de sensibilizado a las transiciones
-        pn.setTransitionTime("T4",100);
-        pn.setTransitionTime("T5",100);
-        pn.setTransitionTime("T6",100);
-        pn.setTransitionTime("T7",100);
-        pn.setTransitionTime("T8",100);
-        pn.setTransitionTime("T10",100);
-        pn.setTransitionTime("T11",100);
-        pn.setTransitionTime("T12",100);
+        pn.setTransitionTime("T4",2230);
+        pn.setTransitionTime("T5",2280);
+        pn.setTransitionTime("T6",2480);
+        pn.setTransitionTime("T7",2190);
+        pn.setTransitionTime("T8",2000);
+        pn.setTransitionTime("T10",2820);
+        pn.setTransitionTime("T11",3285);
+        pn.setTransitionTime("T12",3550);
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int maxInv = 100;
+        int maxInv = 1000;
         int invTAmount = 3;
         int invPAmount = 9;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
@@ -134,7 +135,7 @@ public class Main {
 
         // Chequeo de cantidad de hilos
         if(Arrays.stream(segThreads).sum() != threadAmount) {
-            System.out.print("Error en la Cantidad de Hilos o cantidad de Hilos por segmento.\n");
+            System.out.print("Error en la Cantidad de Hilos o Cantidad de Hilos por segmento.\n");
             System.exit(1);
         }
 
@@ -171,7 +172,8 @@ public class Main {
 
         /*
          * Finalmente, ejecutamos el script en python para chequear la correcta
-         * ejecución de los invariantes de transición
+         * ejecución de los invariantes de transición, imprimimos información
+         * sobre la ejecución del sistema en el monitor y el tiempo que se demoró.
          */
 
         // El hilo Main espera a que los demás hilos terminen

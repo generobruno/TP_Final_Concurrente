@@ -1,5 +1,7 @@
 package Logic;
 
+import Data.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class Transition extends PetrinetObject {
      */
     public void setTimeFrame(long timeFrame) {
         this.timed = true;
-        this.timeFrame = (timeFrame*1000000); // TODO REVISAR
+        this.timeFrame = (timeFrame); // TODO REVISAR
         this.firedTime = -1;
     }
 
@@ -65,15 +67,61 @@ public class Transition extends PetrinetObject {
             canFire = canFire & arc.canFire();
         }
 
-        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(firedTime == -1) {
             firedTime = System.nanoTime();
         }
 
+        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(canFire && timed) {
             long timeTaken = (System.nanoTime() - firedTime)/1000000;
-            System.out.printf("Tiempo %s - %d[ms]\n",this.getName(),timeTaken);
             canFire = (timeTaken <= timeFrame);
+
+            if(!canFire) {
+                System.out.printf("Transición %s Desensibilizada - Tiempo %d\n", this.getName(), timeTaken);
+            }
+        }
+
+        return canFire;
+    }
+
+    /**
+     * Método canFire
+     * Una transición solo puede dispararse si tiene arcos
+     * conectados y si está dentro de su ventana de sensibilizado,
+     * en caso de tener una.
+     * @param log Log para los tiempos
+     * @return True en caso de poder dispararse
+     */
+    public boolean canFire(Logger log) {
+        boolean canFire = true;
+
+        canFire = !(this.isNotConnected());
+
+        for(Arc arc : incoming) {
+            canFire = canFire & arc.canFire();
+        }
+
+        for(Arc arc : outgoing) {
+            canFire = canFire & arc.canFire();
+        }
+
+        if(firedTime == -1) {
+            firedTime = System.nanoTime();
+        }
+
+        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
+        if(canFire && timed) {
+            long timeTaken = (System.nanoTime() - firedTime)/1000000;
+            canFire = (timeTaken <= timeFrame);
+
+            // Registramos información de los tiempos
+            if(canFire) {
+                log.logTimed("Tiempo "+ this.getName() + " - " + timeTaken + "[ms]\n");
+                //log.logTimed(this.getName() + " " + timeTaken + "\n");
+            } else {
+                log.logTimed(this.getName() + " TIME OUT - " + timeTaken + "[ms] > " + timeFrame + "[ms]\n");
+            }
+
         }
 
         return canFire;

@@ -105,8 +105,9 @@ public class Petrinet extends PetrinetObject {
      * @return True en caso de estar habilitada
      *         False en caso contrario
      */
-    public boolean isEnabled(int transition) {
-        return 1 == enableTransitions[(transition - 1)];
+    public boolean isEnabled(int transition) { // TODO VER CUAL DE LAS 2 OPCIONES USAR
+        //return 1 == enableTransitions[(transition - 1)];
+        return transitions.get((transition-1)).canFire();
     }
 
     /**
@@ -505,17 +506,13 @@ public class Petrinet extends PetrinetObject {
         // Obtenemos la transición
         Transition t = transitions.get(transition - 1);
 
-        if(t.canFire()) {
+        if(t.canFire(log)) {
             // Dispara la transición si es posible
             t.fire();
-            // Registramos el disparo TODO Si es timed, escribir en otro log o el mismo?
+            // Registramos el disparo
             log.logT(t.getName());
             // Actualiza la red
             updateNet(transition);
-        } else {
-            if(t.isTimed()) {
-                System.out.printf("T%d Desensibilizada\n", transition);
-            }
         }
 
     }
@@ -534,10 +531,6 @@ public class Petrinet extends PetrinetObject {
             t.fire();
             // Actualiza la red
             updateNet(transition);
-        } else {
-            if(t.isTimed()) {
-                System.out.printf("T%d Desensibilizada\n", transition);
-            }
         }
     }
 

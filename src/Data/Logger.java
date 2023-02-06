@@ -21,6 +21,8 @@ public class Logger {
     private final String LOG_TRANSITION = "data/log/logFired.txt";
     // Path para los invariantes de plaza
     private final String LOG_PLACES = "data/log/logInvP.txt";
+    // Path para información de tiempo
+    private final String LOG_TIME = "data/log/logTimes.txt";
 
     /**
      * Constructor de la clase
@@ -39,6 +41,10 @@ public class Logger {
 
             // Creamos el archivo en caso de no existir
             logFile = new File(LOG_PLACES);
+            logFile.createNewFile();
+
+            // Creamos el archivo en caso de no existir
+            logFile = new File(LOG_TIME);
             logFile.createNewFile();
 
             // Limpiamos los archivos
@@ -83,6 +89,23 @@ public class Logger {
     }
 
     /**
+     * Método logTimed
+     * Escribe un archivo de texto con los tiempos que tardaron las
+     * transiciones temporizadas en ser disparados.
+     * @param T Transición a escribir
+     */
+    public void logTimed(String T) {
+        try {
+            file = new FileWriter(LOG_TIME, true);
+            PrintWriter printWriter = new PrintWriter(file);
+            printWriter.printf("%s", T);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Método clear
      * Limpia el archivo log de la simulación.
      */
@@ -97,6 +120,11 @@ public class Logger {
             PrintWriter writer1 = new PrintWriter(file);
             writer1.print("");
             writer1.close();
+
+            file = new FileWriter(LOG_TIME);
+            PrintWriter writer2 = new PrintWriter(file);
+            writer2.print("");
+            writer2.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

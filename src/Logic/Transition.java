@@ -3,7 +3,9 @@ package Logic;
 import Data.Logger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Clase Transition.
@@ -68,14 +70,13 @@ public class Transition extends PetrinetObject {
         }
 
         if(firedTime == -1) {
-            firedTime = System.currentTimeMillis();
+            firedTime = new Date().getTime();
         }
 
         // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(canFire && timed) {
-            long timeTaken = (System.currentTimeMillis() - firedTime);
+            long timeTaken = ((new Date().getTime()) - firedTime);
             canFire = (timeTaken <= timeFrame);
-
             if(!canFire) {
                 System.out.printf("Transición %s Desensibilizada - Tiempo %d\n", this.getName(), timeTaken);
             }
@@ -106,12 +107,12 @@ public class Transition extends PetrinetObject {
         }
 
         if(firedTime == -1) {
-            firedTime = System.currentTimeMillis();
+            firedTime = new Date().getTime();
         }
 
         // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(canFire && timed) {
-            long timeTaken = (System.currentTimeMillis() - firedTime);
+            long timeTaken = ((new Date().getTime()) - firedTime);
             canFire = (timeTaken <= timeFrame);
 
             // Registramos información de los tiempos
@@ -142,7 +143,7 @@ public class Transition extends PetrinetObject {
 
         // Momento del disparo TODO REVISAR
         if(timed) {
-            this.firedTime = System.currentTimeMillis();
+            this.firedTime = new Date().getTime();
         }
     }
 

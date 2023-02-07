@@ -506,7 +506,6 @@ public class Petrinet extends PetrinetObject {
         // Obtenemos la transición
         Transition t = transitions.get(transition - 1);
 
-        // TODO VER SI HACE FALTA EL IF()
         if(t.canFire(log)) {
             // Dispara la transición si es posible
             t.fire();

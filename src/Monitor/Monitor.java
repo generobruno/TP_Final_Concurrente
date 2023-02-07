@@ -21,16 +21,22 @@ public class Monitor {
     private final Petrinet petrinet;
     // Política
     private final Policy policy;
+
+
     // Lock para la exclusión mutua
     private final ReentrantLock mutex;
     // Cola de condiciones
     private final Condition waitQueue;
+
+
     // Mapa de transiciones de invariantes
-    private final Map<Integer,Integer> invariantsFired;
+    private final Map<Integer,Integer> invariantsFiredMap;
     // Lista con los invariantes de transición
     final List<int[]> invariantsT;
     // Mapa con los invariantes de plaza
     final Map<String[],Integer> invariantsP;
+
+
     // Cantidad máxima de invariantes a disparar
     private final int maxInv;
     // Cantidad de invariantes disparadas
@@ -39,6 +45,8 @@ public class Monitor {
     private final int[] amountForInv;
     // Disparos de las distintas transiciones
     private final int[] amountForTrans;
+
+
     // Logger
     private final Logger log;
 
@@ -47,19 +55,28 @@ public class Monitor {
      * @param pn Red de Petri
      */
     public Monitor(Petrinet pn, Map<Integer,Integer> inv, int maxInv, Logger logger) {
+        /*
+         *          Red de Petri y sus atributos
+         */
         // Asociamos red de Petri
         petrinet = pn;
         // Mapa de invariantes y cantidad de ejecuciones
-        invariantsFired = inv;
+        invariantsFiredMap = inv;
         // Invariantes de transición
         this.invariantsT = pn.getInvariantsT();
         // Invariantes de plaza
         this.invariantsP = pn.getInvariantsP();
-        // Número de invariantes a disparar
 
+        /*
+         *                Política
+         */
         // Creamos un objeto Política
         policy = new Policy(this,invariantsT);
 
+        /*
+         *          Información del monitor
+         */
+        // Número de invariantes a disparar
         this.maxInv = maxInv;
         // Array con disparos por invariante
         amountForInv = new int[invariantsT.size()];
@@ -68,9 +85,15 @@ public class Monitor {
         // Invariantes disparadas
         invFired = 0;
 
+        /*
+         *                Registros
+         */
         // Logger
         log = logger;
 
+        /*
+         *          Manejo de Concurrencia
+         */
         // Lock para exclusión mutua
         mutex = new ReentrantLock();
         // Cola de condiciones
@@ -138,7 +161,7 @@ public class Monitor {
      */
     public void incrementInvariant(int t) {
         // Incrementamos el valor de la transición disparada
-        invariantsFired.put(t, invariantsFired.get(t)+1);
+        invariantsFiredMap.put(t, invariantsFiredMap.get(t)+1);
 
         if(!isFinished()) {
             for(int i = 0; i < invariantsT.size(); i++) {
@@ -161,7 +184,7 @@ public class Monitor {
     public boolean checkInvariant(int[] inv) {
         int aux = 0;
         for(int i : inv) {
-            if(invariantsFired.get(i) >= 1){
+            if(invariantsFiredMap.get(i) >= 1){
                 aux++;
             }
         }
@@ -169,7 +192,7 @@ public class Monitor {
         if(aux == inv.length) {
             // Reiniciamos los puntos del invariante
             for (int j : inv) {
-                invariantsFired.put(j, 0);
+                invariantsFiredMap.put(j, 0);
             }
             return true;
         } else {

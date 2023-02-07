@@ -3,6 +3,7 @@ package Monitor;
 import Data.Logger;
 import Logic.Petrinet;
 import Logic.Place;
+import Policy.Policy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,8 @@ public class Monitor {
 
     // Red de Petri asociada
     private final Petrinet petrinet;
+    // Política
+    private final Policy policy;
     // Lock para la exclusión mutua
     private final ReentrantLock mutex;
     // Cola de condiciones
@@ -53,6 +56,10 @@ public class Monitor {
         // Invariantes de plaza
         this.invariantsP = pn.getInvariantsP();
         // Número de invariantes a disparar
+
+        // Creamos un objeto Política
+        policy = new Policy(this,invariantsT);
+
         this.maxInv = maxInv;
         // Array con disparos por invariante
         amountForInv = new int[invariantsT.size()];
@@ -60,8 +67,10 @@ public class Monitor {
         amountForTrans = new int[inv.size()];
         // Invariantes disparadas
         invFired = 0;
+
         // Logger
         log = logger;
+
         // Lock para exclusión mutua
         mutex = new ReentrantLock();
         // Cola de condiciones
@@ -231,10 +240,26 @@ public class Monitor {
     }
 
     /**
+     * Método getAmountForInv
+     * @return Disparos de los distintos invariantes
+     */
+    public int[] getAmountForInv() {
+        return amountForInv;
+    }
+
+    /**
+     * Método getAmountForTrans
+     * @return Disparos de las distintas transiciones
+     */
+    public int[] getAmountForTrans() {
+        return amountForTrans;
+    }
+
+    /**
      * Método printAmountForInv
      * Imprime información sobre los invariantes y las transiciones disparadas
      */
-    public void printInfo(List<int[]> invariants) {
+    public void printInfo() {
         // Información de invariantes
         System.out.printf("\nTotal de invariantes disparados: %d\n",getInvFired());
         System.out.print("Carga en los invariantes:\n");
@@ -257,10 +282,10 @@ public class Monitor {
 
         // Transiciones por invariante
         System.out.println("Total de transiciones por invariante:");
-        for(int i = 0; i < invariants.size(); i++) {
+        for(int i = 0; i < invariantsT.size(); i++) {
             System.out.printf("Invariante %d: ( ",(i+1));
             int sum = 0;
-            for(int j : invariants.get(i)) {
+            for(int j : invariantsT.get(i)) {
                 System.out.printf("T%d ",j);
                 sum += amountForTrans[(j-1)];
             }

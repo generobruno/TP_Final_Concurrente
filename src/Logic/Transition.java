@@ -105,6 +105,7 @@ public class Transition extends PetrinetObject {
             canFire = canFire & arc.canFire();
         }
 
+        // TODO Esto no se usaria aca ya que lo hacer canFire(-) pero por ahora lo dejo por las dudas
         if(firedTime == -1) {
             firedTime = new Date().getTime();
         }

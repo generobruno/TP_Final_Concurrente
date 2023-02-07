@@ -2,6 +2,7 @@ import Data.*;
 import Executor.Segment;
 import Logic.Petrinet;
 import Monitor.Monitor;
+import Policy.Policy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,14 +49,14 @@ public class Main {
         pn.setPlaceName("P18", "Cs3");
 
         // Asignamos tiempo de sensibilizado a las transiciones
-        pn.setTransitionTime("T4",2230000);
-        pn.setTransitionTime("T5",2280000);
-        pn.setTransitionTime("T6",2480000);
-        pn.setTransitionTime("T7",2190000);
-        pn.setTransitionTime("T8",2000000);
-        pn.setTransitionTime("T10",2820000);
-        pn.setTransitionTime("T11",3285000);
-        pn.setTransitionTime("T12",3550000);
+        pn.setTransitionTime("T4",2230);
+        pn.setTransitionTime("T5",2280);
+        pn.setTransitionTime("T6",2480);
+        pn.setTransitionTime("T7",2190);
+        pn.setTransitionTime("T8",2000);
+        pn.setTransitionTime("T10",2820);
+        pn.setTransitionTime("T11",3285);
+        pn.setTransitionTime("T12",3550);
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -119,6 +120,8 @@ public class Main {
          * Ahora creamos el Monitor para el manejo de la concurrencia, junto con
          * los distintos segmentos encargados del disparo de los invariantes
          * de la red.
+         * Además, dentro del monitor creamos un objeto Policy para mantener la
+         * carga de los invariantes disparados lo más equitativa posible
          */
 
         // Creamos el monitor y le asignamos la red
@@ -231,7 +234,7 @@ public class Main {
         System.out.println();
 
         // Imprimimos info sobre la ejecución del monitor
-        monitor.printInfo(invariants);
+        monitor.printInfo();
 
         // Agregamos los estados alcanzados al log de invP
         System.out.println("\nAgregando los estados al log...");

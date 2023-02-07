@@ -109,9 +109,7 @@ public class Monitor {
             // signalAll() ya que un disparo puede habilitar a más de una transición
             waitQueue.signalAll();
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IllegalMonitorStateException e) {
+        } catch (InterruptedException | IllegalMonitorStateException e) {
             e.printStackTrace();
         } finally {
 

@@ -59,7 +59,7 @@ public class Main {
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int maxInv = 1000;
+        int maxInv = 100;
         int invTAmount = 3;
         int invPAmount = 9;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>

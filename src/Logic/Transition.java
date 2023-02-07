@@ -5,7 +5,6 @@ import Data.Logger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Clase Transition.
@@ -13,9 +12,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class Transition extends PetrinetObject {
     // Lista de arcos de entrada
-    private final List<Arc> incoming = new ArrayList<Arc>();
+    private final List<Arc> incoming = new ArrayList<>();
     // Lista de arcos de salida
-    private final List<Arc> outgoing = new ArrayList<Arc>();
+    private final List<Arc> outgoing = new ArrayList<>();
     // Ventana de sensibilizado por tiempo
     private long timeFrame;
     // Momento del último disparo
@@ -57,7 +56,7 @@ public class Transition extends PetrinetObject {
      * @return True en caso de poder dispararse
      */
     public boolean canFire() {
-        boolean canFire = true;
+        boolean canFire;
 
         canFire = !(this.isNotConnected());
 
@@ -94,7 +93,7 @@ public class Transition extends PetrinetObject {
      * @return True en caso de poder dispararse
      */
     public boolean canFire(Logger log) {
-        boolean canFire = true;
+        boolean canFire;
 
         canFire = !(this.isNotConnected());
 

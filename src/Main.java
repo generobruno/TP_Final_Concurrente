@@ -68,7 +68,7 @@ public class Main {
             invariantsTMap.put(k, 0);
         }
 
-        // Invariantes de transición TODO MEJORAR
+        // Invariantes de transición
         List<int[]> invariants = new ArrayList<>();
         int[] invT1 = {9,10,11,12};
         int[] invT2 = {1,3,5,7,8};
@@ -85,7 +85,7 @@ public class Main {
             System.exit(1);
         }
 
-        // Invariantes de plaza TODO MEJORAR
+        // Invariantes de plaza
         Map<String[],Integer> invariantsPMap = new HashMap<>();
         int[] invPTokens =  {4,2,2,3,1,4,3,4,6};
         String[] invP1 = {"P10","P11","P8","P9"};               // = 4
@@ -185,12 +185,12 @@ public class Main {
             }
         }
 
-        // Termina ejecución de los hilos
-        long endTime = System.nanoTime();
-
         // El hilo main dispara transiciones hasta volver el estado inicial, para el script
         System.out.println("\nVolviendo al estado inicial...");
         pn.fireContinuously(log,true);
+
+        // Termina ejecución de la red
+        long endTime = System.nanoTime();
 
         // Ejecutamos el script
         try {
@@ -238,7 +238,7 @@ public class Main {
         log.logP("Estados alcanzados por el sistema (" + pn.getAllStates().size() + "):\n");
         for(List<Integer> list : pn.getAllStates()) {
             for(int i : list) {
-                log.logP(list.get(i) + " ");
+                log.logP(i + " ");
             }
             log.logP("\n");
         }
@@ -259,4 +259,5 @@ TODO
     (ej. Monitor.isFinished()) deberían ser synchronized.
     3. Ver manera de registrar los tiempos que tardan en dispararse las transiciones en un log y despues, junto con
     la info brindada por el monitor.printInfo(), analizar si el tiempo medido por el main (timeTaken) es correcto.
+    4. Ver si sacar la doble revisión de canFire() o implementarla de otra manera
  */

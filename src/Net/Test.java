@@ -36,8 +36,8 @@ public class Test {
         System.out.println("");
         pn.printVectorE();
         System.out.println("");
-        System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
-        System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
+        //System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
+        //System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
         // Disparamos una transición
         //System.out.println(pn);
@@ -50,8 +50,8 @@ public class Test {
         System.out.println("");
         pn.printVectorE();
         System.out.println("");
-        System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
-        System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
+        //System.out.printf("T8 is enabled?: %b \n", pn.isEnabled(8));
+        //System.out.printf("T9 is enabled?: %b \n", pn.isEnabled(9));
 
         // Disparamos hasta deadlock
         pn.fireContinuously(log,false);

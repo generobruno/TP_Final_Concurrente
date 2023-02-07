@@ -117,7 +117,6 @@ public class Transition extends PetrinetObject {
             // Registramos información de los tiempos
             if(canFire) {
                 log.logTimed("Tiempo "+ this.getName() + " - " + timeTaken + "[ms]\n");
-                //log.logTimed(this.getName() + " " + timeTaken + "\n");
             } else {
                 log.logTimed(this.getName() + " TIME OUT - " + timeTaken + "[ms] > " + timeFrame + "[ms]\n");
             }

@@ -163,7 +163,7 @@ public class Main {
         }
 
         // Empezamos a medir el tiempo
-        long startTime = System.nanoTime();
+        long startTime = System.currentTimeMillis();
 
         // Lanzamos los hilos
         for(int i = 0; i < threadAmount; i++) {
@@ -190,7 +190,7 @@ public class Main {
         pn.fireContinuously(log,true);
 
         // Termina ejecución de la red
-        long endTime = System.nanoTime();
+        long endTime = System.currentTimeMillis();
 
         // Ejecutamos el script
         try {
@@ -244,7 +244,7 @@ public class Main {
         }
 
         // Termina la ejecución
-        long timeTaken = (endTime - startTime)/1000000;
+        long timeTaken = (endTime - startTime);
         System.out.printf("\nFIN - Tiempo de ejecución: %d [ms].", timeTaken);
 
     }

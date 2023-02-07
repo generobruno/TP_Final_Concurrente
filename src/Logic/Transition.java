@@ -68,12 +68,12 @@ public class Transition extends PetrinetObject {
         }
 
         if(firedTime == -1) {
-            firedTime = System.nanoTime();
+            firedTime = System.currentTimeMillis();
         }
 
         // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(canFire && timed) {
-            long timeTaken = (System.nanoTime() - firedTime)/1000000;
+            long timeTaken = (System.currentTimeMillis() - firedTime);
             canFire = (timeTaken <= timeFrame);
 
             if(!canFire) {
@@ -106,12 +106,12 @@ public class Transition extends PetrinetObject {
         }
 
         if(firedTime == -1) {
-            firedTime = System.nanoTime();
+            firedTime = System.currentTimeMillis();
         }
 
         // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
         if(canFire && timed) {
-            long timeTaken = (System.nanoTime() - firedTime)/1000000;
+            long timeTaken = (System.currentTimeMillis() - firedTime);
             canFire = (timeTaken <= timeFrame);
 
             // Registramos información de los tiempos
@@ -142,7 +142,7 @@ public class Transition extends PetrinetObject {
 
         // Momento del disparo TODO REVISAR
         if(timed) {
-            this.firedTime = System.nanoTime();
+            this.firedTime = System.currentTimeMillis();
         }
     }
 

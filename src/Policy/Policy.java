@@ -60,11 +60,7 @@ public class Policy {
         }
 
         // Si el porcentaje de disparos es mayor al objetivo, no disparamos la transición
-        if(percentage > target) {
-            return false;
-        } else {
-            return true;
-        }
+        return (percentage <= target);
     }
 
     /**

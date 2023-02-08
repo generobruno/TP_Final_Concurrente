@@ -2,7 +2,6 @@ import Data.*;
 import Executor.Segment;
 import Logic.Petrinet;
 import Monitor.Monitor;
-import Policy.Policy;
 
 import java.io.BufferedReader;
 import java.io.IOException;

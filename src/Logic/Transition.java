@@ -68,6 +68,7 @@ public class Transition extends PetrinetObject {
             canFire = canFire & arc.canFire();
         }
 
+        /*
         if(firedTime == -1) {
             firedTime = new Date().getTime();
         }
@@ -80,6 +81,7 @@ public class Transition extends PetrinetObject {
                 System.out.printf("Transición %s Desensibilizada - Tiempo %d\n", this.getName(), timeTaken);
             }
         }
+        */
 
         return canFire;
     }

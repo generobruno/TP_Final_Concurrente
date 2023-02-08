@@ -61,11 +61,8 @@ public class Segment implements Runnable{
 
         while(!finish) {
             for (int transition : this.transitions) {
-                //System.out.printf("Thread %s entering monitor - (T%d)\n",Thread.currentThread().getName(),transitions[i]);
-                monitor.fireTransition(transition);
-                //System.out.printf("Transition %d FIRED\n", transitions[i]);
 
-                // TODO COMO HACER QUE VUELVA AL ESTADO INICIAL
+                monitor.fireTransition(transition);
 
                 // Si se dispararon más de [invMax] invariantes, se detiene la ejecución
                 if ((monitor.isFinished())) {

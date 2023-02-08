@@ -25,8 +25,9 @@ public class Monitor {
 
     // Lock para la exclusión mutua
     private final ReentrantLock mutex;
-    // Cola de condiciones
+    // Colas de condiciones
     private final Condition waitQueue;
+    private final Condition policyQueue;
 
 
     // Mapa de transiciones de invariantes
@@ -68,12 +69,6 @@ public class Monitor {
         this.invariantsP = pn.getInvariantsP();
 
         /*
-         *                Política
-         */
-        // Creamos un objeto Política
-        policy = new Policy(this,invariantsT);
-
-        /*
          *          Información del monitor
          */
         // Número de invariantes a disparar
@@ -86,6 +81,12 @@ public class Monitor {
         invFired = 0;
 
         /*
+         *                Política
+         */
+        // Creamos un objeto Política
+        policy = new Policy(this,invariantsT);
+
+        /*
          *                Registros
          */
         // Logger
@@ -96,8 +97,10 @@ public class Monitor {
          */
         // Lock para exclusión mutua
         mutex = new ReentrantLock();
-        // Cola de condiciones
+        // Cola de condiciones para transiciones deshabilitadas
         waitQueue = mutex.newCondition();
+        // Cola de condiciones para transiciones sobre-disparadas
+        policyQueue = mutex.newCondition();
     }
 
     /**
@@ -127,15 +130,17 @@ public class Monitor {
                 waitQueue.await();
             }
 
-            // Dispara la transición cuando se habilita
-            petrinet.fireTransition(t,log);
-            amountForTrans[(t-1)]++;
+            if(policy.decide(t) && !isFinished()) {
+                // Dispara la transición cuando se habilita
+                petrinet.fireTransition(t,log);
+                amountForTrans[(t-1)]++;
 
-            // Chequeamos que se cumplan los Invariantes de Plaza
-            checkPlaceInv(t,log);
+                // Chequeamos que se cumplan los Invariantes de Plaza
+                checkPlaceInv(t,log);
 
-            // Incrementamos el valor de la transición disparada
-            incrementInvariant(t);
+                // Incrementamos el valor de la transición disparada
+                incrementInvariant(t);
+            }
 
             // Luego de disparar despierta a los hilos que estaban esperando una habilitación
             // signalAll() ya que un disparo puede habilitar a más de una transición

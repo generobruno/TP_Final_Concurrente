@@ -59,7 +59,7 @@ public class Main {
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
-        int maxInv = 100;
+        int maxInv = 1000;
         int invTAmount = 3;
         int invPAmount = 9;
         // El mapa contiene <Key, Value> = <Invariante, Ejecuciones>
@@ -254,12 +254,24 @@ public class Main {
 
 /*
 TODO
-    1. Hay que encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
+    1. Encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
     un regex que funciona aunque no se vuelva al estado inicial. Para lo primero hay que revisar la inicialización de
     el atributo initialState en la clase PetriNet y después compararlo con el estado actual en Segment.run().
     2. Ver si es necesario que los métodos de monitor ejecutados por los segmentos que no usan el mutex
     (ej. Monitor.isFinished()) deberían ser synchronized.
-    3. Ver manera de registrar los tiempos que tardan en dispararse las transiciones en un log y despues, junto con
-    la info brindada por el monitor.printInfo(), analizar si el tiempo medido por el main (timeTaken) es correcto.
-    4. Ver si sacar la doble revisión de canFire() o implementarla de otra manera
+    3. Analizar el tiempo medido por el main (timeTaken) y el de logTimes.txt.
+    4. Agregar lo que se imprime con monitor.printInfo() en un archivo log?.
+    5. Ver si sacar la doble revisión de canFire() o implementarla de otra manera.
+TODO
+    6. Revisar el algoritmo y la implementación de Policy.decide() el monitor. Revisar caso en el que ninguna
+    de las transiciones pueda ser disparada por no cumplir con el target.
+    En la actual implementación el algoritmo de la política decide si dejar disparar una transición dependiendo
+    de si se esta disparando por sobre el porcentaje objetivo,
+        a) ¿Qué pasa en caso de que se esté sub-disparando?
+        b) ¿Debería hacer que se dispare una transición en caso de que se este sub-disparando?
+        c) En caso de hacer que esto ocurra, quizá deberíamos tener 2 colas de condición en el monitor:
+            1 Para hilos queriendo disparar transiciones sobre-disparadas (percentage >= threshold) y
+            1 para hilos queriendo disparar transiciones sub-disparadas (percentage < threshold)
+        d) ¿Cuando se dispare una transición de 1 cola se debería despertar a una de la otra para mantener el
+        equilibrio?
  */

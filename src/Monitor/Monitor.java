@@ -307,6 +307,7 @@ public class Monitor {
             float percentage = (float) amountForTrans[i]/totalTrans;
             System.out.printf("Transición %d: Disparada %d veces ( %3.3f %% )\n", (i+1), amountForTrans[i], (percentage*100));
         }
+
         // Información de transiciones temporizadas
         List<Transition> timedT = new ArrayList<>();
         for(Transition t : petrinet.getTransitions()) {

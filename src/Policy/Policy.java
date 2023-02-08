@@ -28,10 +28,15 @@ public class Policy {
      * @param inv Lista con los invariantes de Transición
      */
     public Policy(Monitor mon, List<int[]> inv) {
+        // Monitor asociado
         monitor = mon;
+        // Cantidad de transiciones
         cantT = mon.getAmountForTrans().length;
+        // Porcentaje objetivo a mantener para las transiciones
         target = Math.round((1/(float)cantT)*100);
+        // Lista de invariantes de transición
         invariants = inv;
+        // Mapa de transiciones repetidas en los invariantes
         duplicates = repeatedTransitions(inv);
     }
 

@@ -3,8 +3,10 @@ package Monitor;
 import Data.Logger;
 import Logic.Petrinet;
 import Logic.Place;
+import Logic.Transition;
 import Policy.Policy;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -305,6 +307,22 @@ public class Monitor {
             float percentage = (float) amountForTrans[i]/totalTrans;
             System.out.printf("Transición %d: Disparada %d veces ( %3.3f %% )\n", (i+1), amountForTrans[i], (percentage*100));
         }
+        // Información de transiciones temporizadas
+        List<Transition> timedT = new ArrayList<>();
+        for(Transition t : petrinet.getTransitions()) {
+            if(t.isTimed()) {
+                timedT.add(t);
+            }
+        }
+        System.out.printf("\nTransiciones temporizadas: %d ( ", timedT.size());
+        int totalTransTimed = 0;
+        for(Transition t : timedT) {
+            System.out.printf("%s ", t.getName());
+            String[] name = t.getName().split("(?!^)");
+            totalTransTimed += amountForTrans[Integer.parseInt(name[1])];
+        }
+        System.out.print(")\n");
+        System.out.printf("Total de temporizadas disparadas: %d\n", totalTransTimed);
 
         System.out.println();
 

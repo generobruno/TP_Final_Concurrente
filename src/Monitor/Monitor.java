@@ -29,7 +29,6 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition waitQueue;
-    private final Condition policyQueue;
 
 
     // Mapa de transiciones de invariantes
@@ -48,6 +47,8 @@ public class Monitor {
     private final int[] amountForInv;
     // Disparos de las distintas transiciones
     private final int[] amountForTrans;
+    // Cantidad de veces seguidas sin disparar una transición
+    private int falseFires = 0;
 
 
     // Logger
@@ -101,8 +102,6 @@ public class Monitor {
         mutex = new ReentrantLock();
         // Cola de condiciones para transiciones deshabilitadas
         waitQueue = mutex.newCondition();
-        // Cola de condiciones para transiciones sobre-disparadas
-        policyQueue = mutex.newCondition();
     }
 
     /**
@@ -129,10 +128,26 @@ public class Monitor {
 
             // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
             while(!petrinet.isEnabled(t) && !isFinished()) {
-                waitQueue.await();
+                // TODO Revisar (con este if()) caso en el que todos los hilos hayan intentado disparar una t deshabilitada
+                if(mutex.getWaitQueueLength(waitQueue) <= 17) {
+                    waitQueue.await();
+                } else {
+                    System.out.println("ERROR");
+                }
             }
 
-            if(policy.decide(t) && !isFinished()) {
+            // Tomamos la decisión de disparar o no la transición de acuerdo con la política
+            boolean decision = policy.decide(t);
+
+            // Si no se pudo disparar una transición por más de "cantHilos" veces seguidas
+            // la siguiente es disparada, ignorando a la política. TODO REVISAR
+            if(falseFires >= 18) {
+                decision = true;
+                falseFires = 0;
+            }
+
+            // Si la política lo permite y el monitor no ha terminado, se dispara la transición
+            if(decision && !isFinished()) {
                 // Dispara la transición cuando se habilita
                 petrinet.fireTransition(t,log);
                 amountForTrans[(t-1)]++;
@@ -142,6 +157,11 @@ public class Monitor {
 
                 // Incrementamos el valor de la transición disparada
                 incrementInvariant(t);
+            }
+
+            // Aumentamos el contador en caso de que la política no permita disparar la transición TODO REVISAR
+            if(!decision) {
+                falseFires++;
             }
 
             // Luego de disparar despierta a los hilos que estaban esperando una habilitación
@@ -267,14 +287,6 @@ public class Monitor {
      */
     public boolean isFinished() {
         return (invFired>=maxInv);
-    }
-
-    /**
-     * Método getAmountForInv
-     * @return Disparos de los distintos invariantes
-     */
-    public int[] getAmountForInv() {
-        return amountForInv;
     }
 
     /**

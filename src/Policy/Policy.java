@@ -33,7 +33,7 @@ public class Policy {
         // Cantidad de transiciones
         cantT = mon.getAmountForTrans().length;
         // Porcentaje objetivo a mantener para las transiciones
-        target = Math.round((1/(float)cantT)*100);
+        target = (Math.round((1/(float)cantT)*100) + 1); // TODO Revisar número +1
         // Lista de invariantes de transición
         invariants = inv;
         // Mapa de transiciones repetidas en los invariantes
@@ -52,7 +52,7 @@ public class Policy {
         int totalTransFired = Arrays.stream(monitor.getAmountForTrans()).sum();
 
         // Esperamos a que se disparen "cantT" transiciones para realizar los cálculos
-        if(totalTransFired < cantT) {
+        if(totalTransFired < cantT*10) { // TODO revisar numero *10
             return true;
         }
 

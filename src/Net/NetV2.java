@@ -49,7 +49,7 @@ public class NetV2 {
         int[] MS_2 = {1};       //  Max(MS_2) = 2
         int[] MS_3 = {3,5};     //  Max(MS_3) = 4
         int[] MS_4 = {2,4};     //  Max(MS_4) = 4
-        int[] MS_5 = {6};       //  Max(MS_5) = 4
+        int[] MS_5 = {6};       //  Max(MS_5) = 1
         pn.printAllStates(MS_i);
         */
 

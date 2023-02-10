@@ -127,13 +127,13 @@ public class Main {
         Monitor monitor = new Monitor(pn, invariantsTMap, maxInv, log);
 
         // Cantidad de hilos y de segmentos resultado del análisis de la red
-        int threadAmount = 18;
+        int threadAmount = 15;
         int segmentsAmount = 5;
 
         // Creamos un array de segmentos y de sus respectivos hilos de ejecución
         Thread[] threads = new Thread[threadAmount];
         Segment[] segments = new Segment[segmentsAmount];
-        int[] segThreads = {4,2,4,4,4};
+        int[] segThreads = {4,2,4,4,1};
 
         // Chequeo de cantidad de hilos
         if(Arrays.stream(segThreads).sum() != threadAmount) {

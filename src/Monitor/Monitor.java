@@ -6,10 +6,7 @@ import Logic.Place;
 import Logic.Transition;
 import Policy.Policy;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,6 +46,7 @@ public class Monitor {
     private final int[] amountForTrans;
     // Cantidad de veces seguidas sin disparar una transición
     private int falseFires = 0;
+    private int threadsWaiting = 0;
 
 
     // Logger
@@ -126,25 +124,22 @@ public class Monitor {
 
         try {
 
+
+
             // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
             while(!petrinet.isEnabled(t) && !isFinished()) {
-                // TODO Revisar (con este if()) caso en el que todos los hilos hayan intentado disparar una t deshabilitada
-                if(mutex.getWaitQueueLength(waitQueue) <= 17) {
-                    waitQueue.await();
-                } else {
-                    System.out.println("ERROR");
-                }
+                // TODO Revisar caso en el que todos los hilos hayan intentado disparar una t deshabilitada
+                //   Cuando eso pase, alguno de los hilos debería despertar y disparar otra de sus transiciones
+                //   Usar un duplicado del mapa de invariantes para ver cuando todos los hilos estén durmiendo?
+                threadsWaiting++;
+
+                waitQueue.await(); // Va a haber "cantHilosMax" hilos esperando cuando se trabe
+
+                threadsWaiting--;
             }
 
             // Tomamos la decisión de disparar o no la transición de acuerdo con la política
             boolean decision = policy.decide(t);
-
-            // Si no se pudo disparar una transición por más de "cantHilos" veces seguidas
-            // la siguiente es disparada, ignorando a la política. TODO REVISAR
-            if(falseFires >= 18) {
-                decision = true;
-                falseFires = 0;
-            }
 
             // Si la política lo permite y el monitor no ha terminado, se dispara la transición
             if(decision && !isFinished()) {
@@ -159,14 +154,9 @@ public class Monitor {
                 incrementInvariant(t);
             }
 
-            // Aumentamos el contador en caso de que la política no permita disparar la transición TODO REVISAR
-            if(!decision) {
-                falseFires++;
-            }
-
             // Luego de disparar despierta a los hilos que estaban esperando una habilitación
             // signalAll() ya que un disparo puede habilitar a más de una transición
-            waitQueue.signalAll();
+            waitQueue.signalAll(); // TODO será por esto que flasha el log de los tiempos?
 
         } catch (InterruptedException | IllegalMonitorStateException e) {
             e.printStackTrace();

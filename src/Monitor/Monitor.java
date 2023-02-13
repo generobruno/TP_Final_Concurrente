@@ -26,6 +26,7 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition waitQueue;
+    private Map<String,Integer> threadMap = new HashMap<>();
 
 
     // Mapa de transiciones de invariantes
@@ -44,9 +45,6 @@ public class Monitor {
     private final int[] amountForInv;
     // Disparos de las distintas transiciones
     private final int[] amountForTrans;
-    // Cantidad de veces seguidas sin disparar una transición
-    private int falseFires = 0;
-    private int threadsWaiting = 0;
 
 
     // Logger
@@ -64,6 +62,7 @@ public class Monitor {
         petrinet = pn;
         // Mapa de invariantes y cantidad de ejecuciones
         invariantsFiredMap = inv;
+
         // Invariantes de transición
         this.invariantsT = pn.getInvariantsT();
         // Invariantes de plaza
@@ -123,20 +122,27 @@ public class Monitor {
         mutex.lock();
 
         try {
-
-
-
             // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
             while(!petrinet.isEnabled(t) && !isFinished()) {
                 // TODO Revisar caso en el que todos los hilos hayan intentado disparar una t deshabilitada
                 //   Cuando eso pase, alguno de los hilos debería despertar y disparar otra de sus transiciones
                 //   Usar un duplicado del mapa de invariantes para ver cuando todos los hilos estén durmiendo?
-                threadsWaiting++;
+
+                /*
+                threadMap.put(Thread.currentThread().getName(), 1);
+
+                int threadsWaiting = threadMap.values().stream().mapToInt(Integer::intValue).sum();
+
+                if(threadsWaiting == 15) {
+                    break;
+                }
+                */
 
                 waitQueue.await(); // Va a haber "cantHilosMax" hilos esperando cuando se trabe
 
-                threadsWaiting--;
             }
+
+            //threadMap.put(Thread.currentThread().getName(), 0);
 
             // Tomamos la decisión de disparar o no la transición de acuerdo con la política
             boolean decision = policy.decide(t);
@@ -156,7 +162,7 @@ public class Monitor {
 
             // Luego de disparar despierta a los hilos que estaban esperando una habilitación
             // signalAll() ya que un disparo puede habilitar a más de una transición
-            waitQueue.signalAll(); // TODO será por esto que flasha el log de los tiempos?
+            waitQueue.signalAll();
 
         } catch (InterruptedException | IllegalMonitorStateException e) {
             e.printStackTrace();

@@ -14,7 +14,7 @@ public class Segment implements Runnable{
     // Red de Petri simulada
     private final Petrinet petrinet;
     // Transiciones a disparar
-    final int[] transitions;
+    private final int[] transitions;
     // Boolean para terminar la ejecución
     private boolean finish;
 

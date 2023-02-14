@@ -26,7 +26,10 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition waitQueue;
+    // Mapa con los hilos y la cantidad de veces que se intentó disparar una de sus transiciones
     private Map<String,Integer> threadMap = new HashMap<>();
+    // Mapa con los hilos y el valor 1 si están esperando en una condición, 0 en caso contrario
+    private Map<String,Integer> threadsQueued = new HashMap<>();
 
 
     // Mapa de transiciones de invariantes
@@ -120,6 +123,8 @@ public class Monitor {
 
         // Entra un thread y toma el lock
         mutex.lock();
+        // Bandera auxiliar para falsos disparos
+        boolean falseFire = false;
 
         try {
             // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
@@ -128,24 +133,41 @@ public class Monitor {
                 //   Cuando eso pase, alguno de los hilos debería despertar y disparar otra de sus transiciones
                 //   Usar un duplicado del mapa de invariantes para ver cuando todos los hilos estén durmiendo?
 
-                if(!petrinet.isEnabled(t)) {
-                    threadMap.put(Thread.currentThread().getName(), 1);
+                // Un hilo intenta disparar alguna de sus transiciones hasta que no pueda más, saliendo del bucle
+                // Indicamos que el hilo va a esperar a la cola
+                threadsQueued.put(Thread.currentThread().getName(), 1);
+
+                // Sumamos la cantidad de hilos esperando
+                int threadsWaiting = threadsQueued.values().stream().mapToInt(Integer::intValue).sum();
+
+                // Cantidad de veces que un hilo intentó disparar una de sus transiciones
+                threadMap.putIfAbsent(Thread.currentThread().getName(), 1);
+                threadMap.put(Thread.currentThread().getName(), threadMap.get(Thread.currentThread().getName())+1);
+
+                // Si los intentos superan un valor máximo, el hilo no se dispara y despierta a los demás
+                if(threadMap.get(Thread.currentThread().getName()) >= 3) { // TODO Pasar el 3 como referencia u obtener de algún lado como el max num de transiciones en un inv
+                    threadMap.put(Thread.currentThread().getName(), 0);
+                    falseFire = true;
+                    break; // TODO HABRIA QUE DARLE MAS TIEMPO A LAS TEMPORIZADAS y pasar el 15 como la cant de hilos
+                } else if(threadsWaiting == 15) { // Si el último hilo no puede dispararse, despierta a los demás
+                    falseFire = true;
+                    break; // TODO Poner todos los valores de threadsMap en 0 aca tmbn?
+                } else { // Para todos los demás casos, el hilo espera
+                    waitQueue.await();
                 }
-
-                int threadsWaiting = threadMap.values().stream().mapToInt(Integer::intValue).sum();
-
-                if(threadsWaiting == 15) {
-                    break;
-                }
-
-                waitQueue.await();
 
             }
 
-            threadMap.put(Thread.currentThread().getName(), 0);
+            // El hilo sale de la cola de espera
+            threadsQueued.put(Thread.currentThread().getName(), 0);
 
             // Tomamos la decisión de disparar o no la transición de acuerdo con la política
             boolean decision = policy.decide(t);
+
+            // Si es un falso disparo, no se dispara
+            if(falseFire) {
+                decision = false;
+            }
 
             // Si la política lo permite y el monitor no ha terminado, se dispara la transición
             if(decision && !isFinished()) {

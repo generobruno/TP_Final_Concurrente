@@ -68,21 +68,6 @@ public class Transition extends PetrinetObject {
             canFire = canFire & arc.canFire();
         }
 
-        /*
-        if(firedTime == -1) {
-            firedTime = new Date().getTime();
-        }
-
-        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
-        if(canFire && timed) {
-            long timeTaken = ((new Date().getTime()) - firedTime);
-            canFire = (timeTaken <= timeFrame);
-            if(!canFire) {
-                System.out.printf("Transición %s Desensibilizada - Tiempo %d\n", this.getName(), timeTaken);
-            }
-        }
-        */
-
         return canFire;
     }
 

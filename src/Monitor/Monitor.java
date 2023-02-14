@@ -25,11 +25,7 @@ public class Monitor {
     // Lock para la exclusión mutua
     private final ReentrantLock mutex;
     // Colas de condiciones
-    private final Condition waitQueue;
-    // Mapa con los hilos y la cantidad de veces que se intentó disparar una de sus transiciones
-    private Map<String,Integer> threadMap = new HashMap<>();
-    // Mapa con los hilos y el valor 1 si están esperando en una condición, 0 en caso contrario
-    private Map<String,Integer> threadsQueued = new HashMap<>();
+    private final Condition[] waitQueue;
 
 
     // Mapa de transiciones de invariantes
@@ -48,6 +44,12 @@ public class Monitor {
     private final int[] amountForInv;
     // Disparos de las distintas transiciones
     private final int[] amountForTrans;
+    // Transiciones habilitadas en la red
+    private int[] enabledTransitions;
+    // Procesos esperando a ser habilitados
+    private int[] waitingProcesses;
+    // Procesos listos para ser ejecutados
+    private int[] readyProcesses;
 
 
     // Logger
@@ -101,7 +103,16 @@ public class Monitor {
         // Lock para exclusión mutua
         mutex = new ReentrantLock();
         // Cola de condiciones para transiciones deshabilitadas
-        waitQueue = mutex.newCondition();
+        waitQueue = new Condition[inv.size()];
+        for(int i = 0; i < waitQueue.length; i++) {
+            waitQueue[i] = mutex.newCondition();
+        }
+        // Transiciones habilitadas
+        enabledTransitions = new int[inv.size()];
+        // Transiciones esperando
+        waitingProcesses = new int[inv.size()];
+        // Transiciones listas
+        readyProcesses = new int[inv.size()];
     }
 
     /**
@@ -121,58 +132,37 @@ public class Monitor {
          * para ver quien puede disparar su transición. Esta es la situación SIN POLÍTICA.
          */
 
+        // TODO Tenemos 2 opciones con la variable de condición "enabler":
+        //  1. enabler = true: Primero debemos disparar la transición (petrinet.fireTransition(t)) haciendo que cambie el estado
+        //  y luego obtenemos el vector de sensibilizadas (ver método petrinet.getEnableTransitions). Después revisamos cuales de las colas
+        //  de condición tiene transiciones esperando para dispararse (mutex.hasWaiters(waitQueue[i]) obteniendo otro vector de transiciones
+        //  esperando con 0s y 1s (waitingProcesses[]).Hacemos un AND con estos 2 vectores (RECORDAR QUE LA POS 0 DE LOS VECTORES HACE REFERENCIA
+        //  A LA TRANSICIÓN 1 DE LA RED -> [i] = (t-1)) obteniendo otro vector con las transiciones habilitadas y con 1 hilo esperando (readyProcesses[]).
+        //      1.1 readyProcesses[].length >= 1: Ejecutamos el método de la política, el cual debe decidir cual de las colas despertar. (ver de cambiar el
+        //      método para que devuelva el número de transición que es más conveniente despertar, SI O SI TIENE QUE DESPERTAR 1 Y SOLO UNO). Esto se hace con
+        //      waitQueue[transition_decided].signAll(), el hilo que ejecuta sigAll() sale del monitor (mutex.unlock()) y toma control el que despertó y
+        //      estaba en la cola, tomando el lock del monitor.
+        //      1.2 readyProcesses[].length == 0: Hacemos que enabler = false y luego mutex.unlock().
+        //  2. enabler = false: waitQueue[t].await().
+
         // Entra un thread y toma el lock
         mutex.lock();
-        // Bandera auxiliar para falsos disparos
-        boolean falseFire = false;
+        // Variable de condición inicialmente habilitada
+        boolean enabler = true;
 
         try {
-            // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
-            while(!petrinet.isEnabled(t) && !isFinished()) {
-                // TODO Revisar caso en el que todos los hilos hayan intentado disparar una t deshabilitada
-                //   Cuando eso pase, alguno de los hilos debería despertar y disparar otra de sus transiciones
-                //   Usar un duplicado del mapa de invariantes para ver cuando todos los hilos estén durmiendo?
+            // Mientras la variable de condición esté habilitada, un hilo se ejecuta dentro del monitor
+            while(enabler && !isFinished()) {
 
-                // Un hilo intenta disparar alguna de sus transiciones hasta que no pueda más, saliendo del bucle
-                // Indicamos que el hilo va a esperar a la cola
-                threadsQueued.put(Thread.currentThread().getName(), 1);
-
-                // Sumamos la cantidad de hilos esperando
-                int threadsWaiting = threadsQueued.values().stream().mapToInt(Integer::intValue).sum();
-
-                // Cantidad de veces que un hilo intentó disparar una de sus transiciones
-                threadMap.putIfAbsent(Thread.currentThread().getName(), 1);
-                threadMap.put(Thread.currentThread().getName(), threadMap.get(Thread.currentThread().getName())+1);
-
-                // Si los intentos superan un valor máximo, el hilo no se dispara y despierta a los demás
-                if(threadMap.get(Thread.currentThread().getName()) >= 3) { // TODO Pasar el 3 como referencia u obtener de algún lado como el max num de transiciones en un inv
-                    threadMap.put(Thread.currentThread().getName(), 0);
-                    falseFire = true;
-                    break; // TODO HABRIA QUE DARLE MAS TIEMPO A LAS TEMPORIZADAS y pasar el 15 como la cant de hilos
-                } else if(threadsWaiting == 15) { // Si el último hilo no puede dispararse, despierta a los demás
-                    falseFire = true;
-                    break; // TODO Poner todos los valores de threadsMap en 0 aca tmbn?
-                } else { // Para todos los demás casos, el hilo espera
-                    waitQueue.await();
+                // Mientras la transición a disparar esté deshabilitada y si no se completaron los invariantes, espera
+                while(!petrinet.isEnabled(t) && !isFinished()) {
+                    waitQueue[(t-1)].await();
                 }
 
-            }
-
-            // El hilo sale de la cola de espera
-            threadsQueued.put(Thread.currentThread().getName(), 0);
-
-            // Tomamos la decisión de disparar o no la transición de acuerdo con la política
-            boolean decision = policy.decide(t);
-
-            // Si es un falso disparo, no se dispara
-            if(falseFire) {
-                decision = false;
-            }
-
-            // Si la política lo permite y el monitor no ha terminado, se dispara la transición
-            if(decision && !isFinished()) {
                 // Dispara la transición cuando se habilita
                 petrinet.fireTransition(t,log);
+
+                // Aumentamos el número de la transición disparada
                 amountForTrans[(t-1)]++;
 
                 // Chequeamos que se cumplan los Invariantes de Plaza
@@ -180,15 +170,39 @@ public class Monitor {
 
                 // Incrementamos el valor de la transición disparada
                 incrementInvariant(t);
-            }
 
-            // Luego de disparar despierta a los hilos que estaban esperando una habilitación
-            // signalAll() ya que un disparo puede habilitar a más de una transición
-            waitQueue.signalAll();
+                // Obtenemos el vector de sensibilizadas
+                enabledTransitions = petrinet.getEnableTransitions();
+
+                // Obtenemos las colas de condiciones con procesos esperando
+                waitingProcesses = getWaitingProcesses();
+
+                // Obtenemos las transiciones listas para dispararse
+                readyProcesses = getReadyProcesses(enabledTransitions, waitingProcesses);
+
+                // Si hay 1 proceso o más listos, ejecutamos la política
+                if(Arrays.stream(readyProcesses).sum() != 0) {
+                    int next_transition = policy.decide(readyProcesses);
+                    // Se despierta el hilo que decide la política
+                    waitQueue[(next_transition-1)].signalAll();
+                    // Libera el monitor
+                    break;
+                } else { // En caso contrario, el hilo sale del monitor
+                    enabler = false;
+                }
+
+            }
 
         } catch (InterruptedException | IllegalMonitorStateException e) {
             e.printStackTrace();
         } finally {
+
+            // Cuando haya terminado, libera los hilos que quedaron esperando
+            if(isFinished()) {
+                for (Condition condition : waitQueue) {
+                    condition.signalAll();
+                }
+            }
 
             // Finalmente, libera el lock
             mutex.unlock();
@@ -289,6 +303,45 @@ public class Monitor {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Método getWaitingProcesses
+     * @return Array con las colas de condiciones que tienen transiciones esperando
+     * (1) y las que no tienen ninguna (0).
+     */
+    public int[] getWaitingProcesses() {
+        int[] arr = new int[waitQueue.length];
+
+        for(int i = 0; i < waitQueue.length; i++) {
+            if(mutex.hasWaiters(waitQueue[i])) {
+                arr[i] = 1;
+            } else {
+                arr[i] = 0;
+            }
+        }
+
+        return arr;
+    }
+
+    /**
+     * Método getReadyProcesses
+     * @param enabled Transiciones habilitadas
+     * @param waiting Procesos esperando para disparar una transición
+     * @return Array con las transiciones listas para dispararse
+     */
+    public int[] getReadyProcesses(int[] enabled, int[] waiting) {
+        int[] arr = new int[readyProcesses.length];
+
+        for(int i = 0; i < readyProcesses.length; i++) {
+            if(enabled[i] == 1 && waiting[i] == 1) {
+                arr[i] = (i+1);
+            } else {
+                arr[i] = 0;
+            }
+        }
+
+        return arr;
     }
 
     /**

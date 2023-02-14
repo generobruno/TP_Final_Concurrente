@@ -44,18 +44,30 @@ public class Policy {
      * Método decide
      * Se encarga de decidir si una transición de la red puede ser disparada
      * o debe esperar para que se mantenga la carga de los invariantes
-     * @param t Transición a disparar
-     * @return True en caso de poder ser disparada
+     * @param ready Transición listas para disparar
+     * @return Número de la transición a disparar en caso de poder ser disparada
      */
-    public boolean decide(int t) {
+    public int decide(int[] ready) {
         // Total de transiciones disparadas hasta el momento
         int totalTransFired = Arrays.stream(monitor.getAmountForTrans()).sum();
 
         // Esperamos a que se disparen "cantT" transiciones para realizar los cálculos
-        if(totalTransFired < cantT*10) { // TODO revisar numero *10
-            return true;
+        if(totalTransFired < cantT*10) {
+            int rnd = new Random().nextInt(ready.length);
+            while(ready[rnd] == 0) {
+                rnd = new Random().nextInt(ready.length);
+            }
+            return ready[rnd];
         }
 
+        // TODO SACAR MAS TARDE
+        int rnd = new Random().nextInt(ready.length);
+        while(ready[rnd] == 0) {
+            rnd = new Random().nextInt(ready.length);
+        }
+        return ready[rnd];
+
+        /*
         // Porcentaje de veces que fue disparada la transición "t" hasta el momento
         int percentage = Math.round((monitor.getAmountForTrans()[(t-1)]/(float)totalTransFired)*100);
 
@@ -66,6 +78,7 @@ public class Policy {
 
         // Si el porcentaje de disparos es mayor al objetivo, no disparamos la transición
         return (percentage <= target);
+         */
     }
 
     /**

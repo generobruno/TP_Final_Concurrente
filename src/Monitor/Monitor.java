@@ -128,21 +128,21 @@ public class Monitor {
                 //   Cuando eso pase, alguno de los hilos debería despertar y disparar otra de sus transiciones
                 //   Usar un duplicado del mapa de invariantes para ver cuando todos los hilos estén durmiendo?
 
-                /*
-                threadMap.put(Thread.currentThread().getName(), 1);
+                if(!petrinet.isEnabled(t)) {
+                    threadMap.put(Thread.currentThread().getName(), 1);
+                }
 
                 int threadsWaiting = threadMap.values().stream().mapToInt(Integer::intValue).sum();
 
                 if(threadsWaiting == 15) {
                     break;
                 }
-                */
 
-                waitQueue.await(); // Va a haber "cantHilosMax" hilos esperando cuando se trabe
+                waitQueue.await();
 
             }
 
-            //threadMap.put(Thread.currentThread().getName(), 0);
+            threadMap.put(Thread.currentThread().getName(), 0);
 
             // Tomamos la decisión de disparar o no la transición de acuerdo con la política
             boolean decision = policy.decide(t);

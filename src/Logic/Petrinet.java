@@ -83,21 +83,10 @@ public class Petrinet extends PetrinetObject {
                     break;
                 } else {
                     this.enableTransitions[i] = 1;
-                    transitions.get(i).setTimeStamp(); // TODO REVISAR
+                    transitions.get(i).setTimeStamp();
                 }
             }
         }
-
-
-        /*
-        for(int i = 0; i < cantT; i++){
-            if(transitions.get(i).canFire()) {
-                enableTransitions[i] = 1;
-            } else {
-                enableTransitions[i] = 0;
-            }
-        }
-        */
 
     }
 

@@ -7,6 +7,7 @@ import Logic.Transition;
 import Policy.Policy;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -378,26 +379,27 @@ public class Monitor {
 
             // Duerme por un tiempo
             try {
-                Thread.sleep(transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime());
+                long timeSleep = (transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime()) * (-1);
+                TimeUnit.MILLISECONDS.sleep(timeSleep);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
-
             // Sale del monitor
-            enabler = false; // TODO Necesitaría otra cola o variable de condición??
+            enabler = false;
 
         } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
 
+            log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
+
             // Sale del monitor
-            enabler = false; // TODO Necesitaría otra cola o variable de condición??
+            enabler = false;
 
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
             if(timedTransitions[(t-1)] == -1) {
-                log.logTimed("Transición "+ transition.getName() + " waiting\n");
-                enabler = false; // TODO Necesitaría otra cola o variable de condición??
+                log.logTimed("Transición "+ transition.getName() + " WAITING\n");
+                enabler = false;
             } else {
                 log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");
             }

@@ -48,14 +48,14 @@ public class Main {
         pn.setPlaceName("P18", "Cs3");
 
         // Asignamos tiempo de sensibilizado a las transiciones
-        pn.setTransitionTime("T4",10,215);
-        pn.setTransitionTime("T5",10,295);
-        pn.setTransitionTime("T6",10,332);
-        pn.setTransitionTime("T7",10,405);
-        pn.setTransitionTime("T8",10,221);
-        pn.setTransitionTime("T10",10,232);
-        pn.setTransitionTime("T11",10,604);
-        pn.setTransitionTime("T12",10,343);
+        pn.setTransitionTime("T4",10,2150);
+        pn.setTransitionTime("T5",10,2950);
+        pn.setTransitionTime("T6",10,3320);
+        pn.setTransitionTime("T7",10,4050);
+        pn.setTransitionTime("T8",10,2210);
+        pn.setTransitionTime("T10",10,2320);
+        pn.setTransitionTime("T11",10,6040);
+        pn.setTransitionTime("T12",10,3430);
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -251,27 +251,3 @@ public class Main {
 
     }
 }
-
-/*
-TODO
-    1. Encontrar una forma de que la red vuelva al estado original para que el script funcione, o encontrar
-    un regex que funciona aunque no se vuelva al estado inicial. Para lo primero hay que revisar la inicialización de
-    el atributo initialState en la clase PetriNet y después compararlo con el estado actual en Segment.run().
-    2. Ver si es necesario que los métodos de monitor ejecutados por los segmentos que no usan el mutex
-    (ej. Monitor.isFinished()) deberían ser synchronized.
-    3. Analizar el tiempo medido por el main (timeTaken) y el de logTimes.txt.
-    4. Agregar lo que se imprime con monitor.printInfo() en un archivo log?.
-    5. Ver si sacar la doble revisión de canFire() o implementarla de otra manera.
-TODO
-    6. Revisar el algoritmo y la implementación de Policy.decide() el monitor. Revisar caso en el que ninguna
-    de las transiciones pueda ser disparada por no cumplir con el target.
-    En la actual implementación el algoritmo de la política decide si dejar disparar una transición dependiendo
-    de si se esta disparando por sobre el porcentaje objetivo,
-        a) ¿Qué pasa en caso de que se esté sub-disparando?
-        b) ¿Debería hacer que se dispare una transición en caso de que se este sub-disparando?
-        c) En caso de hacer que esto ocurra, quizá deberíamos tener 2 colas de condición en el monitor:
-            1 Para hilos queriendo disparar transiciones sobre-disparadas (percentage >= threshold) y
-            1 para hilos queriendo disparar transiciones sub-disparadas (percentage < threshold)
-        d) ¿Cuando se dispare una transición de 1 cola se debería despertar a una de la otra para mantener el
-        equilibrio?
- */

@@ -27,8 +27,10 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition[] waitQueue;
-    // Variable de condición
+    // Variable de condición para habilitadas
     private boolean enabler = true;
+    // Variable de condición para temporizadas
+    private int fireTimed = 1;
 
 
     // Mapa de transiciones de invariantes
@@ -145,12 +147,18 @@ public class Monitor {
                 }
 
                 // Si la transición es temporizada, analizamos su instante de llegada
+                fireTimed = 1;
                 if(petrinet.isTimedTransition(t)) {
-                    checkTimedTransition(t);
+                    fireTimed = checkTimedTransition(t);
                 }
 
-                // Dispara la transición cuando se habilita
-                petrinet.fireTransition(t,log);
+                // Dispara la transición cuando se habilita y si está temporalmente habilitada
+                if(fireTimed == 1 || fireTimed == 2) {
+                    petrinet.fireTransition(t,log);
+                } else if(fireTimed == 0){
+                    // Caso contrario, sale del monitor
+                    break;
+                }
 
                 // Reiniciamos las transiciones que estaban esperando
                 timedTransitions = petrinet.getTimeSensibleTransitions();
@@ -363,8 +371,11 @@ public class Monitor {
      *      2. Caso (time > beta): Sale del monitor
      *      3. Otros casos: Se dispara la transición correctamente, si no estaba esperando
      * @param t Transición a analizar
+     * @return 1 En caso de estar dentro de su ventana de sensibilizado
+     *         2 En caso de haber esperado
+     *         3 En caso de que se haya superado su tiempo máximo
      */
-    public void checkTimedTransition(int t) {
+    public int checkTimedTransition(int t) {
 
         // Obtenemos la transición y el tiempo que tardó desde que se sensibilizó
         Transition transition = petrinet.getTransitions().get(t-1);
@@ -386,22 +397,23 @@ public class Monitor {
             }
 
             // Sale del monitor
-            enabler = false;
+            return 2;
 
         } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
 
             log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
 
             // Sale del monitor
-            enabler = false;
+            return 0;
 
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
             if(timedTransitions[(t-1)] == -1) {
-                log.logTimed("Transición "+ transition.getName() + " WAITING\n");
-                enabler = false;
+                log.logTimed("Transición "+ transition.getName() + " WAITING\n"); // TODO Revisar este caso
+                return 2;
             } else {
                 log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");
+                return 1;
             }
         }
 

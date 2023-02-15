@@ -39,7 +39,6 @@ public class Transition extends PetrinetObject {
         this.timed = true;
         this.alfaTime = alfaTime;
         this.betaTime = betaTime;
-        this.sensitizedTime = -1;
     }
 
     /**

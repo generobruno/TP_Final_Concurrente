@@ -48,14 +48,14 @@ public class Main {
         pn.setPlaceName("P18", "Cs3");
 
         // Asignamos tiempo de sensibilizado a las transiciones
-        pn.setTransitionTime("T4",1,2230);
-        pn.setTransitionTime("T5",1,2280);
-        pn.setTransitionTime("T6",1,2480);
-        pn.setTransitionTime("T7",1,2190);
-        pn.setTransitionTime("T8",1,2000);
-        pn.setTransitionTime("T10",1,2820);
-        pn.setTransitionTime("T11",1,3285);
-        pn.setTransitionTime("T12",1,3550);
+        pn.setTransitionTime("T4",1,22300);
+        pn.setTransitionTime("T5",1,22800);
+        pn.setTransitionTime("T6",1,24800);
+        pn.setTransitionTime("T7",1,21900);
+        pn.setTransitionTime("T8",1,20000);
+        pn.setTransitionTime("T10",1,28200);
+        pn.setTransitionTime("T11",1,32850);
+        pn.setTransitionTime("T12",1,35500);
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -165,7 +165,7 @@ public class Main {
         }
 
         // Empezamos a medir el tiempo
-        long startTime = System.currentTimeMillis();
+        long startTime = new Date().getTime();
 
         // Lanzamos los hilos
         for(int i = 0; i < threadAmount; i++) {
@@ -187,12 +187,12 @@ public class Main {
             }
         }
 
+        // Termina ejecución de la red
+        long endTime = new Date().getTime();
+
         // El hilo main dispara transiciones hasta volver el estado inicial, para el script
         System.out.println("\nVolviendo al estado inicial...");
         pn.fireContinuously(log,true);
-
-        // Termina ejecución de la red
-        long endTime = System.currentTimeMillis();
 
         // Ejecutamos el script
         try {

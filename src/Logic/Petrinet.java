@@ -554,7 +554,7 @@ public class Petrinet extends PetrinetObject {
         // Obtenemos la transición
         Transition t = transitions.get(transition - 1);
 
-        if(t.canFire()) { // TODO Con la nueva implementación esto solo es necesario para volver al estado inicial. VER DE CAMBIAR FUNCION FIRECONTINUOUSLY
+        if(t.canFire()) {
             // Dispara la transición si es posible
             t.fire();
             // Registramos el disparo

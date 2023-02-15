@@ -374,6 +374,7 @@ public class Monitor {
 
             // Indicamos que la transición está esperando
             timedTransitions[(t-1)] = -1;
+            log.logTimed(transition.getName() + " COOL-DOWN - " + time + "[ms] < " + transition.getAlfaTime() + "[ms]\n");
 
             // Duerme por un tiempo
             try {
@@ -382,18 +383,23 @@ public class Monitor {
                 e.printStackTrace();
             }
 
+            log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
+
             // Sale del monitor
-            enabler = false; // TODO Necesitaría otra cola de condición??
+            enabler = false; // TODO Necesitaría otra cola o variable de condición??
 
         } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
 
             // Sale del monitor
-            enabler = false; // TODO Necesitaría otra cola de condición??
+            enabler = false; // TODO Necesitaría otra cola o variable de condición??
 
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
             if(timedTransitions[(t-1)] == -1) {
-                enabler = false; // TODO Necesitaría otra cola de condición??
+                log.logTimed("Transición "+ transition.getName() + " waiting\n");
+                enabler = false; // TODO Necesitaría otra cola o variable de condición??
+            } else {
+                log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");
             }
         }
 
@@ -457,8 +463,8 @@ public class Monitor {
         int totalTransTimed = 0;
         for(Transition t : timedT) {
             System.out.printf("%s ", t.getName());
-            String[] name = t.getName().split("(?!^)");
-            totalTransTimed += amountForTrans[Integer.parseInt(name[1])];
+            String numberOnly= t.getName().replaceAll("[^0-9]", "");
+            totalTransTimed += amountForTrans[(Integer.parseInt(numberOnly)-1)];
         }
         System.out.print(")\n");
         System.out.printf("Total de temporizadas disparadas: %d\n", totalTransTimed);

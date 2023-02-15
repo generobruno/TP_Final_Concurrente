@@ -12,15 +12,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Petrinet extends PetrinetObject {
 
     // Lista de plazas
-    private final List<Place> places              = new ArrayList<Place>();
+    private final List<Place> places              = new ArrayList<>();
     // Lista de transiciones
-    private final List<Transition> transitions    = new ArrayList<Transition>();
+    private final List<Transition> transitions    = new ArrayList<>();
     // Lista de arcos
-    private final List<Arc> arcs                  = new ArrayList<Arc>();
+    private final List<Arc> arcs                  = new ArrayList<>();
     // Lista de arcos inhibidores
-    private final List<InhibitorArc> inhibitors   = new ArrayList<InhibitorArc>();
+    private final List<InhibitorArc> inhibitors   = new ArrayList<>();
     // Invariantes de transición
-    List<int[]> invariantsT = new ArrayList<int[]>();
+    List<int[]> invariantsT = new ArrayList<>();
     // Invariantes de plaza
     Map<String[],Integer> invariantsP = new HashMap<>();
     // Matriz de Incidencia
@@ -32,7 +32,7 @@ public class Petrinet extends PetrinetObject {
     // Transiciones habilitadas
     private int[] enableTransitions;
     // Lista con todos los estados simulados
-    final Set<List<Integer>> states = new HashSet<List<Integer>>();
+    final Set<List<Integer>> states = new HashSet<>();
 
     private static final String nl = "\n";
 
@@ -71,22 +71,25 @@ public class Petrinet extends PetrinetObject {
     public void getTransitionsAbleToFire() {
 
         int cantT = transitions.size();
+        int cantP = places.size();
         this.enableTransitions = new int[cantT];
 
-        /* TODO, Hacer que funcione con las matrices?.
-            negIncidenceMatrix = Matriz de incidencia negativa
         for(int i = 0; i < cantT; i++) {
+            int[] S = new int[cantP];
             for(int j = 0; j < places.size(); j++) {
-                if((markings[j] < negIncidenceMatrix[j][i]) && (negIncidenceMatrix[j][i] != 0)) {
+                S[j] = markings[j] + incidenceMatrix[j][i];
+                if(S[j] < 0) {
                     this.enableTransitions[i] = 0;
                     break;
                 } else {
                     this.enableTransitions[i] = 1;
+                    transitions.get(i).setTimeStamp(); // TODO REVISAR
                 }
             }
         }
-        */
 
+
+        /*
         for(int i = 0; i < cantT; i++){
             if(transitions.get(i).canFire()) {
                 enableTransitions[i] = 1;
@@ -94,7 +97,53 @@ public class Petrinet extends PetrinetObject {
                 enableTransitions[i] = 0;
             }
         }
+        */
 
+    }
+
+    /**
+     * Método getTimeSensibleTransitions
+     * @return Vector binario con 1 para las transiciones temporales y 0 para las que no lo son,
+     * indicado según el índice del vector
+     */
+    public int[] getTimeSensibleTransitions() {
+        int[] arr = new int[transitions.size()];
+
+        for(int i = 0; i < transitions.size(); i++) {
+            if(transitions.get(i).isTimed()) {
+                arr[i] = 1;
+            } else {
+                arr[i] = 0;
+            }
+        }
+
+        return arr;
+    }
+
+    /**
+     * Método getTransitionsTimeRange
+     * @return Array con los intervalos de tiempo de sensibilizado de las transiciones
+     * temporizadas
+     */
+    public long[][] getTransitionsTimeRange() {
+        int cantT = transitions.size();
+        long[][] arr = new long[cantT][2];
+
+        for(int i = 0; i < cantT; i ++) {
+            arr[i][0] = transitions.get(i).getAlfaTime();
+            arr[i][1] = transitions.get(i).getBetaTime();
+        }
+
+        return arr;
+    }
+
+    /**
+     * Método getTimeEnabledTransitions
+     * @return Array binario con 1 para las transiciones habilitadas dentro de su ventana de
+     * habilitación temporal, 0 en caso contrario
+     */
+    public int[] getTimeEnabledTransitions() {
+        return null;
     }
 
     /**
@@ -106,8 +155,7 @@ public class Petrinet extends PetrinetObject {
      *         False en caso contrario
      */
     public boolean isEnabled(int transition) { // TODO VER CUAL DE LAS 2 OPCIONES USAR
-        //return 1 == enableTransitions[(transition - 1)];
-        return transitions.get((transition-1)).canFire();
+        return 1 == enableTransitions[(transition - 1)];
     }
 
     /**
@@ -506,7 +554,7 @@ public class Petrinet extends PetrinetObject {
         // Obtenemos la transición
         Transition t = transitions.get(transition - 1);
 
-        if(t.canFire(log)) {
+        if(t.canFire()) { // TODO Con la nueva implementación esto solo es necesario para volver al estado inicial. VER DE CAMBIAR FUNCION FIRECONTINUOUSLY
             // Dispara la transición si es posible
             t.fire();
             // Registramos el disparo
@@ -625,15 +673,26 @@ public class Petrinet extends PetrinetObject {
      * Método setTransitionTime
      * Asigna tiempo de sensibilizado a una transición
      * @param name Nombre de la transición
-     * @param timeFrame Tiempo de sensibilizado [ms]
+     * @param alfaTime Tiempo de sensibilizado inicial [ms]
+     * @param betaTime Tiempo de sensibilizado final [ms]
      */
-    public void setTransitionTime(String name, long timeFrame) {
+    public void setTransitionTime(String name, long alfaTime, long betaTime) {
         for(Transition t : transitions) {
             if(t.getName().equals(name)) {
-                t.setTimeFrame(timeFrame);
+                t.setTimeFrame(alfaTime, betaTime);
                 break;
             }
         }
+    }
+
+    /**
+     * Método isTimed
+     * @param t Transición a revisar
+     * @return True en caso de que "t" sea temporizada
+     *         False en caso contrario
+     */
+    public boolean isTimedTransition(int t) {
+        return (transitions.get((t-1)).isTimed());
     }
 
     /**

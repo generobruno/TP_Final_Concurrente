@@ -26,6 +26,8 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition[] waitQueue;
+    // Variable de condición
+    private boolean enabler = true;
 
 
     // Mapa de transiciones de invariantes
@@ -46,6 +48,8 @@ public class Monitor {
     private final int[] amountForTrans;
     // Transiciones habilitadas en la red
     private int[] enabledTransitions;
+    // Transiciones temporizadas
+    private int[] timedTransitions;
     // Procesos esperando a ser habilitados
     private int[] waitingProcesses;
     // Procesos listos para ser ejecutados
@@ -109,6 +113,8 @@ public class Monitor {
         }
         // Transiciones habilitadas
         enabledTransitions = new int[inv.size()];
+        // Transiciones temporizadas
+        timedTransitions = petrinet.getTimeSensibleTransitions();
         // Transiciones esperando
         waitingProcesses = new int[inv.size()];
         // Transiciones listas
@@ -123,32 +129,10 @@ public class Monitor {
      */
     public void fireTransition(int t) {
 
-        /*
-         * Básicamente, vienen distintos hilos a intentar disparar las transiciones.
-         * Si la transición que quiere disparar un hilo específico está deshabilitada,
-         * entonces dicho hilo debe ir a una COLA DE ESPERA (Wait_i), y cuando la
-         * transición vuelve a habilitarse, se le da una señal para que vuelva a
-         * intentar dispararla. Los hilos compiten por su ejecución, es decir, compiten
-         * para ver quien puede disparar su transición. Esta es la situación SIN POLÍTICA.
-         */
-
-        // TODO Tenemos 2 opciones con la variable de condición "enabler":
-        //  1. enabler = true: Primero debemos disparar la transición (petrinet.fireTransition(t)) haciendo que cambie el estado
-        //  y luego obtenemos el vector de sensibilizadas (ver método petrinet.getEnableTransitions). Después revisamos cuales de las colas
-        //  de condición tiene transiciones esperando para dispararse (mutex.hasWaiters(waitQueue[i]) obteniendo otro vector de transiciones
-        //  esperando con 0s y 1s (waitingProcesses[]).Hacemos un AND con estos 2 vectores (RECORDAR QUE LA POS 0 DE LOS VECTORES HACE REFERENCIA
-        //  A LA TRANSICIÓN 1 DE LA RED -> [i] = (t-1)) obteniendo otro vector con las transiciones habilitadas y con 1 hilo esperando (readyProcesses[]).
-        //      1.1 readyProcesses[].length >= 1: Ejecutamos el método de la política, el cual debe decidir cual de las colas despertar. (ver de cambiar el
-        //      método para que devuelva el número de transición que es más conveniente despertar, SI O SI TIENE QUE DESPERTAR 1 Y SOLO UNO). Esto se hace con
-        //      waitQueue[transition_decided].signAll(), el hilo que ejecuta sigAll() sale del monitor (mutex.unlock()) y toma control el que despertó y
-        //      estaba en la cola, tomando el lock del monitor.
-        //      1.2 readyProcesses[].length == 0: Hacemos que enabler = false y luego mutex.unlock().
-        //  2. enabler = false: waitQueue[t].await().
-
         // Entra un thread y toma el lock
         mutex.lock();
         // Variable de condición inicialmente habilitada
-        boolean enabler = true;
+        enabler = true;
 
         try {
             // Mientras la variable de condición esté habilitada, un hilo se ejecuta dentro del monitor
@@ -159,23 +143,25 @@ public class Monitor {
                     waitQueue[(t-1)].await();
                 }
 
+                // Si la transición es temporizada, analizamos su instante de llegada
+                if(petrinet.isTimedTransition(t)) {
+                    checkTimedTransition(t);
+                }
+
                 // Dispara la transición cuando se habilita
                 petrinet.fireTransition(t,log);
 
-                // Aumentamos el número de la transición disparada
-                amountForTrans[(t-1)]++;
+                // Reiniciamos las transiciones que estaban esperando
+                timedTransitions = petrinet.getTimeSensibleTransitions();
 
-                // Chequeamos que se cumplan los Invariantes de Plaza
-                checkPlaceInv(t,log);
-
-                // Incrementamos el valor de la transición disparada
-                incrementInvariant(t);
-
-                // Obtenemos el vector de sensibilizadas
-                enabledTransitions = petrinet.getEnableTransitions();
+                // Actualizamos los datos del monitor
+                updateMonitorVariables(t);
 
                 // Obtenemos las colas de condiciones con procesos esperando
                 waitingProcesses = getWaitingProcesses();
+
+                // Obtenemos el vector de sensibilizadas
+                enabledTransitions = getEnabledTransitions();
 
                 // Obtenemos las transiciones listas para dispararse
                 readyProcesses = getReadyProcesses(enabledTransitions, waitingProcesses);
@@ -209,6 +195,23 @@ public class Monitor {
 
         }
 
+    }
+
+    /**
+     * Método updateMonitorVariables
+     * Actualiza los distintos valores que mantiene el monitor sobre la ejecución
+     * del programa
+     * @param t Transición disparada
+     */
+    public void updateMonitorVariables(int t) {
+        // Aumentamos el número de la transición disparada
+        amountForTrans[(t-1)]++;
+
+        // Chequeamos que se cumplan los Invariantes de Plaza
+        checkPlaceInv(t,log);
+
+        // Incrementamos el valor de la transición disparada
+        incrementInvariant(t);
     }
 
     /**
@@ -325,6 +328,14 @@ public class Monitor {
     }
 
     /**
+     * Método getEnabledTransitions
+     * @return Array con las transiciones habilitadas
+     */
+    public int[] getEnabledTransitions() {
+        return petrinet.getEnableTransitions();
+    }
+
+    /**
      * Método getReadyProcesses
      * @param enabled Transiciones habilitadas
      * @param waiting Procesos esperando para disparar una transición
@@ -342,6 +353,50 @@ public class Monitor {
         }
 
         return arr;
+    }
+
+    /**
+     * Método checkTimedTransitions
+     * Analiza que hacer dependiendo del tiempo que haya tardado una transición hasta este momento.
+     *      1. Caso (time < alfa): Pone la transición a esperar un tiempo
+     *      2. Caso (time > beta): Sale del monitor
+     *      3. Otros casos: Se dispara la transición correctamente, si no estaba esperando
+     * @param t Transición a analizar
+     */
+    public void checkTimedTransition(int t) {
+
+        // Obtenemos la transición y el tiempo que tardó desde que se sensibilizó
+        Transition transition = petrinet.getTransitions().get(t-1);
+        long time = new Date().getTime() - transition.getTimeStamp();
+
+        // Chequeamos los tiempos
+        if(time < transition.getAlfaTime()) { // Llegó ANTES de tiempo
+
+            // Indicamos que la transición está esperando
+            timedTransitions[(t-1)] = -1;
+
+            // Duerme por un tiempo
+            try {
+                Thread.sleep(transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // Sale del monitor
+            enabler = false; // TODO Necesitaría otra cola de condición??
+
+        } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
+
+            // Sale del monitor
+            enabler = false; // TODO Necesitaría otra cola de condición??
+
+        } else { // Llegó dentro de su Ventana de Tiempo
+            // Si la transición está esperando, sale del monitor
+            if(timedTransitions[(t-1)] == -1) {
+                enabler = false; // TODO Necesitaría otra cola de condición??
+            }
+        }
+
     }
 
     /**

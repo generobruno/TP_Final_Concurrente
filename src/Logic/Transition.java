@@ -1,7 +1,5 @@
 package Logic;
 
-import Data.Logger;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,10 +13,12 @@ public class Transition extends PetrinetObject {
     private final List<Arc> incoming = new ArrayList<>();
     // Lista de arcos de salida
     private final List<Arc> outgoing = new ArrayList<>();
-    // Ventana de sensibilizado por tiempo
-    private long timeFrame;
+    // Instante de inicio de sensibilizado
+    private long alfaTime;
+    // Instante de fin de sensibilizado
+    private long betaTime;
     // Momento del último disparo
-    private long firedTime;
+    private long sensitizedTime;
     // Temporizada
     private boolean timed = false;
 
@@ -32,12 +32,14 @@ public class Transition extends PetrinetObject {
 
     /**
      * Método setTimeFrame
-     * @param timeFrame Tiempo de sensibilizado [ms]
+     * @param alfaTime Tiempo de sensibilizado inicial [ms]
+     * @param betaTime Tiempo de sensibilizado final [ms]
      */
-    public void setTimeFrame(long timeFrame) {
+    public void setTimeFrame(long alfaTime, long betaTime) {
         this.timed = true;
-        this.timeFrame = (timeFrame); // TODO REVISAR
-        this.firedTime = -1;
+        this.alfaTime = alfaTime;
+        this.betaTime = betaTime;
+        this.sensitizedTime = -1;
     }
 
     /**
@@ -46,6 +48,48 @@ public class Transition extends PetrinetObject {
      */
     public boolean isTimed() {
         return timed;
+    }
+
+    /**
+     * Método setTimeStamp
+     * Actualiza el momento de sensibilizado de la transición
+     */
+    public void setTimeStamp() {
+        if(isTimed()) {
+            sensitizedTime = new Date().getTime();
+        }
+    }
+
+    /**
+     * Método getTimeStamp
+     * @return Tiempo de sensibilizado
+     */
+    public long getTimeStamp() {
+        return sensitizedTime;
+    }
+
+    /**
+     * Método getAlfaTime
+     * @return Instante de sensibilizado alfa
+     */
+    public long getAlfaTime() {
+        if(isTimed()) {
+            return alfaTime;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Método getBetaTime
+     * @return Instante de sensibilizado beta
+     */
+    public long getBetaTime() {
+        if(isTimed()) {
+            return betaTime;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -72,49 +116,6 @@ public class Transition extends PetrinetObject {
     }
 
     /**
-     * Método canFire
-     * Una transición solo puede dispararse si tiene arcos
-     * conectados y si está dentro de su ventana de sensibilizado,
-     * en caso de tener una.
-     * @param log Log para los tiempos
-     * @return True en caso de poder dispararse
-     */
-    public boolean canFire(Logger log) {
-        boolean canFire;
-
-        canFire = !(this.isNotConnected());
-
-        for(Arc arc : incoming) {
-            canFire = canFire & arc.canFire();
-        }
-
-        for(Arc arc : outgoing) {
-            canFire = canFire & arc.canFire();
-        }
-
-        // TODO Esto no se usaria aca ya que lo hacer canFire(-) pero por ahora lo dejo por las dudas
-        if(firedTime == -1) {
-            firedTime = new Date().getTime();
-        }
-
-        // Revisamos que se esté dentro de la ventana de tiempo TODO REVISAR
-        if(canFire && timed) {
-            long timeTaken = ((new Date().getTime()) - firedTime);
-            canFire = (timeTaken <= timeFrame);
-
-            // Registramos información de los tiempos
-            if(canFire) {
-                log.logTimed("Tiempo "+ this.getName() + " - " + timeTaken + "[ms]\n");
-            } else {
-                log.logTimed(this.getName() + " TIME OUT - " + timeTaken + "[ms] > " + timeFrame + "[ms]\n");
-            }
-
-        }
-
-        return canFire;
-    }
-
-    /**
      * Método fire
      * Dispara todos los arcos conectados a la
      * transición, si pueden hacerlo
@@ -128,10 +129,6 @@ public class Transition extends PetrinetObject {
             arc.fire();
         }
 
-        // Momento del disparo TODO REVISAR
-        if(timed) {
-            this.firedTime = new Date().getTime();
-        }
     }
 
     /**

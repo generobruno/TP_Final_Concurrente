@@ -17,6 +17,8 @@ public class Policy {
     private final int cantT;
     // Carga objetivo para cada transición
     private final int target;
+    // Cantidad de transiciones necesarias para comenzar
+    private final int start;
     // Lista de invariantes
     List<int[]> invariants;
     // Mapa de transiciones repetidas
@@ -33,7 +35,9 @@ public class Policy {
         // Cantidad de transiciones
         cantT = mon.getAmountForTrans().length;
         // Porcentaje objetivo a mantener para las transiciones
-        target = (Math.round((1/(float)cantT)*100) + 1); // TODO Revisar número +1
+        target = (Math.round((1/(float)cantT) * 100)); // TODO Revisar número
+        // Cantidad de transiciones necesarias para comenzar a ejecutar la política
+        start = (Math.round(monitor.getMaxInv() * 0.1f)); // TODO Revisar número
         // Lista de invariantes de transición
         invariants = inv;
         // Mapa de transiciones repetidas en los invariantes
@@ -50,9 +54,11 @@ public class Policy {
     public int decide(int[] ready) {
         // Total de transiciones disparadas hasta el momento
         int totalTransFired = Arrays.stream(monitor.getAmountForTrans()).sum();
+        // Transición a disparar
+        int transition = 0;
 
-        // Esperamos a que se disparen "cantT" transiciones para realizar los cálculos
-        if(totalTransFired < cantT*10) {
+        // Esperamos a que se disparen suficientes transiciones para realizar los cálculos
+        if(totalTransFired < start) {
             int rnd = new Random().nextInt(ready.length);
             while(ready[rnd] == 0) {
                 rnd = new Random().nextInt(ready.length);
@@ -60,25 +66,47 @@ public class Policy {
             return ready[rnd];
         }
 
-        // TODO SACAR MAS TARDE
-        int rnd = new Random().nextInt(ready.length);
-        while(ready[rnd] == 0) {
-            rnd = new Random().nextInt(ready.length);
+        // Si solo hay una transición lista, se decide por ella
+        int count = 0;
+        for (int j : ready) {
+            if (j == 0) {
+                count++;
+            } else {
+                transition = j;
+            }
         }
-        return ready[rnd];
-
-        /*
-        // Porcentaje de veces que fue disparada la transición "t" hasta el momento
-        int percentage = Math.round((monitor.getAmountForTrans()[(t-1)]/(float)totalTransFired)*100);
-
-        // Revisamos si la transición se repite en los invariantes
-        if(duplicates.containsKey(t)) {
-            percentage = percentage/(duplicates.get(t));
+        if(count == (ready.length - 1)) {
+            return transition;
         }
 
-        // Si el porcentaje de disparos es mayor al objetivo, no disparamos la transición
-        return (percentage <= target);
-         */
+        // Revisamos todas las transiciones listas para obtener la más alejada del "target"
+        float min = target;
+        float[] percentages = new float[cantT]; // TODO Sacar después de debugear
+        float[] values = new float[cantT]; // TODO Sacar después de debugear
+        for(int i = 0; i < ready.length; i++) {
+            if(ready[i] != 0) {
+                // Porcentaje de veces que fue disparada una transición hasta el momento
+                float percentage = (monitor.getAmountForTrans()[i]/(float)totalTransFired)*100;
+
+                // Revisamos si la transición se repite en los invariantes
+                if(duplicates.containsKey(ready[i])) {
+                    percentage = percentage/(duplicates.get(ready[i]));
+                }
+
+                percentages[i] = percentage;
+
+                // Comparamos el valor obtenido con el mínimo
+                float value = (target - percentage);
+                values[i] = value;
+                if(value < min && value > 0) {
+                    min = value;
+                    transition = ready[i];
+                }
+            }
+        }
+
+        return transition;
+
     }
 
     /**

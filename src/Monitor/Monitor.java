@@ -28,9 +28,9 @@ public class Monitor {
     // Colas de condiciones
     private final Condition[] waitQueue;
     // Variable de condición para habilitadas
-    private boolean enabler = true;
+    private boolean enabler;
     // Variable de condición para temporizadas
-    private int fireTimed = 1;
+    private int fireTimed;
 
 
     // Mapa de transiciones de invariantes
@@ -114,6 +114,9 @@ public class Monitor {
         for(int i = 0; i < waitQueue.length; i++) {
             waitQueue[i] = mutex.newCondition();
         }
+        // Variables de Condición
+        enabler = true;
+        fireTimed = 1;
         // Transiciones habilitadas
         enabledTransitions = new int[inv.size()];
         // Transiciones temporizadas
@@ -153,7 +156,7 @@ public class Monitor {
                 }
 
                 // Dispara la transición cuando se habilita y si está temporalmente habilitada
-                if(fireTimed == 1 || fireTimed == 2) {
+                if(fireTimed == 1 || fireTimed == 2) { // TODO Revisar caso 2
                     petrinet.fireTransition(t,log);
                 } else if(fireTimed == 0){
                     // Caso contrario, sale del monitor
@@ -161,7 +164,7 @@ public class Monitor {
                 }
 
                 // Reiniciamos las transiciones que estaban esperando
-                timedTransitions = petrinet.getTimeSensibleTransitions();
+                timedTransitions = petrinet.getTimeSensibleTransitions(); // TODO Esto va aca??
 
                 // Actualizamos los datos del monitor
                 updateMonitorVariables(t);
@@ -425,6 +428,14 @@ public class Monitor {
      */
     public int getInvFired() {
         return invFired;
+    }
+
+    /**
+     * Método getMaxInv
+     * @return Cantidad de transiciones a disparar
+     */
+    public int getMaxInv() {
+        return maxInv;
     }
 
     /**

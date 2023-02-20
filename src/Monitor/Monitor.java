@@ -137,8 +137,9 @@ public class Monitor {
 
         // Entra un thread y toma el lock
         mutex.lock();
-        // Variable de condición inicialmente habilitada
+        // Variables de condición inicialmente habilitadas
         enabler = true;
+        fireTimed = 1;
 
         try {
             // Mientras la variable de condición esté habilitada, un hilo se ejecuta dentro del monitor
@@ -150,24 +151,22 @@ public class Monitor {
                 }
 
                 // Si la transición es temporizada, analizamos su instante de llegada
-                fireTimed = 1;
                 if(petrinet.isTimedTransition(t)) {
                     fireTimed = checkTimedTransition(t);
                 }
 
-                // Dispara la transición cuando se habilita y si está temporalmente habilitada
-                if(fireTimed == 1 || fireTimed == 2) { // TODO Revisar caso 2
+                // En caso de estar habilitada estructural y temporalmente
+                if(fireTimed == 1 || fireTimed == 2) { // TODO Revisar caso 2, deberia irse del monitor o esperar en una cola de condición?
+                    // Disparamos la transición
                     petrinet.fireTransition(t,log);
+                    // Reiniciamos las transiciones que estaban esperando
+                    timedTransitions = petrinet.getTimeSensibleTransitions(); // TODO Esto va aca o fuera del if()??
+                    // Actualizamos los datos del monitor
+                    updateMonitorVariables(t);
                 } else if(fireTimed == 0){
                     // Caso contrario, sale del monitor
                     break;
                 }
-
-                // Reiniciamos las transiciones que estaban esperando
-                timedTransitions = petrinet.getTimeSensibleTransitions(); // TODO Esto va aca??
-
-                // Actualizamos los datos del monitor
-                updateMonitorVariables(t);
 
                 // Obtenemos las colas de condiciones con procesos esperando
                 waitingProcesses = getWaitingProcesses();
@@ -412,7 +411,7 @@ public class Monitor {
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
             if(timedTransitions[(t-1)] == -1) {
-                log.logTimed("Transición "+ transition.getName() + " WAITING\n"); // TODO Revisar este caso
+                log.logTimed("Transición "+ transition.getName() + " WAITING\n"); // TODO Revisar este caso, Cambiar return??
                 return 2;
             } else {
                 log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");

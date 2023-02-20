@@ -143,7 +143,7 @@ public class Petrinet extends PetrinetObject {
      * @return True en caso de estar habilitada
      *         False en caso contrario
      */
-    public boolean isEnabled(int transition) { // TODO VER CUAL DE LAS 2 OPCIONES USAR
+    public boolean isEnabled(int transition) {
         return 1 == enableTransitions[(transition - 1)];
     }
 

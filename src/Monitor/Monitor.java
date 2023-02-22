@@ -156,16 +156,16 @@ public class Monitor {
                 }
 
                 // En caso de estar habilitada estructural y temporalmente
-                if(fireTimed == 1 || fireTimed == 2) { // TODO Revisar caso 2, deberia irse del monitor o esperar en una cola de condición?
+                if(fireTimed == 1) { // TODO Revisar caso 2, debería irse del monitor o esperar en una cola de condición?
                     // Disparamos la transición
                     petrinet.fireTransition(t,log);
                     // Reiniciamos las transiciones que estaban esperando
                     timedTransitions = petrinet.getTimeSensibleTransitions(); // TODO Esto va aca o fuera del if()??
                     // Actualizamos los datos del monitor
                     updateMonitorVariables(t);
-                } else if(fireTimed == 0){
+                } else if(fireTimed == 0 || fireTimed == 2){
                     // Caso contrario, sale del monitor
-                    break;
+                    break; // TODO a quien hacer signal?? -> o tengo que hacer el sleep despues de soltar el mutex, fuera del monitor?
                 }
 
                 // Obtenemos las colas de condiciones con procesos esperando

@@ -156,16 +156,16 @@ public class Monitor {
                 }
 
                 // En caso de estar habilitada estructural y temporalmente
-                if(fireTimed == 1) { // TODO Revisar caso 2, debería irse del monitor o esperar en una cola de condición?
+                if(fireTimed == 1) {
                     // Disparamos la transición
                     petrinet.fireTransition(t,log);
                     // Reiniciamos las transiciones que estaban esperando
-                    timedTransitions = petrinet.getTimeSensibleTransitions(); // TODO Esto va aca o fuera del if()??
+                    timedTransitions = petrinet.getTimeSensibleTransitions();
                     // Actualizamos los datos del monitor
                     updateMonitorVariables(t);
-                } else if(fireTimed == 0 || fireTimed == 2){
+                } else if(fireTimed == 2 || fireTimed == 3) { // TODO Revisar caso 2, debería esperar en una cola de condición?
                     // Caso contrario, sale del monitor
-                    break; // TODO a quien hacer signal?? -> o tengo que hacer el sleep despues de soltar el mutex, fuera del monitor?
+                    enabler = false; // TODO o break??
                 }
 
                 // Obtenemos las colas de condiciones con procesos esperando
@@ -203,6 +203,11 @@ public class Monitor {
 
             // Finalmente, libera el lock
             mutex.unlock();
+
+            // La transición duerme por un tiempo en caso de haber llegado temprano
+            if(fireTimed == 2) {
+                coolDown(t);
+            }
 
         }
 
@@ -386,37 +391,48 @@ public class Monitor {
         // Chequeamos los tiempos
         if(time < transition.getAlfaTime()) { // Llegó ANTES de tiempo
 
-            // Indicamos que la transición está esperando
-            timedTransitions[(t-1)] = -1;
             log.logTimed(transition.getName() + " COOL-DOWN - " + time + "[ms] < " + transition.getAlfaTime() + "[ms]\n");
-
-            // Duerme por un tiempo
-            try {
-                long timeSleep = (transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime()) * (-1);
-                TimeUnit.MILLISECONDS.sleep(timeSleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             // Sale del monitor
             return 2;
 
         } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
 
             log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
-
             // Sale del monitor
-            return 0;
+            return 3;
 
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
             if(timedTransitions[(t-1)] == -1) {
-                log.logTimed("Transición "+ transition.getName() + " WAITING\n"); // TODO Revisar este caso, Cambiar return??
-                return 2;
+                log.logTimed("Transición "+ transition.getName() + " WAITING\n");
+                return 3;
             } else {
-                log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");
+                log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n"); // TODO Actualizar el timeStamp aca tambn? aunque lo haga un par de lineas despues?
                 return 1;
             }
+        }
+
+    }
+
+    /**
+     * Método coolDown
+     * Hace que la transición duerma por un tiempo, en caso de haber llegado
+     * antes de alfa
+     * @param t Transición que debe dormir
+     */
+    public void coolDown(int t) {
+        // Obtenemos la transición
+        Transition transition = petrinet.getTransitions().get(t-1);
+
+        // Indicamos que la transición está esperando
+        timedTransitions[(t-1)] = -1;
+
+        // Duerme por un tiempo
+        try {
+            long timeSleep = (transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime()) * (-1);
+            TimeUnit.MILLISECONDS.sleep(timeSleep);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
     }

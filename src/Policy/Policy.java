@@ -57,7 +57,8 @@ public class Policy {
         // Transición a disparar
         int transition = 0;
 
-        // Esperamos a que se disparen suficientes transiciones para realizar los cálculos
+        // Esperamos a que se disparen suficientes transiciones para realizar los cálculos TODO sacar esto??
+        /*
         if(totalTransFired < start) {
             int rnd = new Random().nextInt(ready.length);
             while(ready[rnd] == 0) {
@@ -65,6 +66,8 @@ public class Policy {
             }
             return ready[rnd];
         }
+
+         */
 
         // Si solo hay una transición lista, se decide por ella
         int count = 0;

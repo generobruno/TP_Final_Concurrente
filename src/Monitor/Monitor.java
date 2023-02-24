@@ -27,6 +27,7 @@ public class Monitor {
     private final ReentrantLock mutex;
     // Colas de condiciones
     private final Condition[] waitQueue;
+    private final Condition coolDownQueue;
     // Variable de condición para habilitadas
     private boolean enabler;
     // Variable de condición para temporizadas
@@ -114,6 +115,8 @@ public class Monitor {
         for(int i = 0; i < waitQueue.length; i++) {
             waitQueue[i] = mutex.newCondition();
         }
+        // Cola de condiciones para transiciones deshabilitadas por tiempo
+        coolDownQueue = mutex.newCondition();
         // Variables de Condición
         enabler = true;
         fireTimed = 1;
@@ -159,20 +162,18 @@ public class Monitor {
                 if(fireTimed == 1) {
                     // Disparamos la transición
                     petrinet.fireTransition(t,log);
-                    // Reiniciamos las transiciones que estaban esperando
-                    timedTransitions = petrinet.getTimeSensibleTransitions();
                     // Actualizamos los datos del monitor
                     updateMonitorVariables(t);
                 } else if(fireTimed == 2 || fireTimed == 3) { // TODO Revisar caso 2, debería esperar en una cola de condición?
                     // Caso contrario, sale del monitor
-                    enabler = false; // TODO o break??
+                    break; // TODO o enabler = false?
                 }
 
                 // Obtenemos las colas de condiciones con procesos esperando
                 waitingProcesses = getWaitingProcesses();
 
                 // Obtenemos el vector de sensibilizadas
-                enabledTransitions = getEnabledTransitions();
+                enabledTransitions = getEnabledTransitions(); // TODO en caso de que fireTimed == 2 deberia recalcular las transiciones habilitadas? -> updateNet(t)?
 
                 // Obtenemos las transiciones listas para dispararse
                 readyProcesses = getReadyProcesses(enabledTransitions, waitingProcesses);
@@ -202,11 +203,12 @@ public class Monitor {
             }
 
             // Finalmente, libera el lock
-            mutex.unlock();
-
-            // La transición duerme por un tiempo en caso de haber llegado temprano
             if(fireTimed == 2) {
+                // La transición duerme por un tiempo en caso de haber llegado temprano
+                mutex.unlock();
                 coolDown(t);
+            } else {
+                mutex.unlock();
             }
 
         }
@@ -348,6 +350,8 @@ public class Monitor {
      * @return Array con las transiciones habilitadas
      */
     public int[] getEnabledTransitions() {
+        // Reiniciamos las transiciones que estaban esperando
+        timedTransitions = petrinet.getTimeSensibleTransitions();
         return petrinet.getEnableTransitions();
     }
 

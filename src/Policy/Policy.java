@@ -84,8 +84,6 @@ public class Policy {
 
         // Revisamos todas las transiciones listas para obtener la más alejada del "target"
         float min = target; // TODO Revisar
-        float[] percentages = new float[cantT]; // TODO Sacar después de debugear
-        float[] values = new float[cantT]; // TODO Sacar después de debugear
         for(int i = 0; i < ready.length; i++) {
             if(ready[i] != 0) {
                 // Porcentaje de veces que fue disparada una transición hasta el momento
@@ -96,11 +94,8 @@ public class Policy {
                     percentage = percentage/(duplicates.get(ready[i]));
                 }
 
-                percentages[i] = percentage;
-
                 // Comparamos el valor obtenido con el mínimo
                 float value = (target - percentage);
-                values[i] = value;
                 if(value < min && value > 0) {
                     min = value;
                     transition = ready[i];

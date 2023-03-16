@@ -48,14 +48,14 @@ public class Main {
         pn.setPlaceName("P18", "Cs3");
 
         // Asignamos tiempo de sensibilizado a las transiciones
-        pn.setTransitionTime("T4",1,2150);
-        pn.setTransitionTime("T5",1,2950);
-        pn.setTransitionTime("T6",1,3320);
-        pn.setTransitionTime("T7",1,4050);
-        pn.setTransitionTime("T8",1,2210);
-        pn.setTransitionTime("T10",1,2320);
-        pn.setTransitionTime("T11",1,6040);
-        pn.setTransitionTime("T12",1,3430);
+        pn.setTransitionTime("T4",1,21500);
+        pn.setTransitionTime("T5",100,29500);
+        pn.setTransitionTime("T6",1,33200);
+        pn.setTransitionTime("T7",1,40500);
+        pn.setTransitionTime("T8",1,22100);
+        pn.setTransitionTime("T10",1,23200);
+        pn.setTransitionTime("T11",1,60400);
+        pn.setTransitionTime("T12",1,34300);
 
         // Creamos un array con los invariantes de transición y un mapa para contar su ejecución
         int[] invT = {1,2,3,4,5,6,7,8,9,10,11,12};

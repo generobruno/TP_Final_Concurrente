@@ -116,7 +116,7 @@ public class Monitor {
             waitQueue[i] = mutex.newCondition();
         }
         // Cola de condiciones para transiciones deshabilitadas por tiempo
-        coolDownQueue = mutex.newCondition();
+        coolDownQueue = mutex.newCondition(); // TODO debería ser 1 condición por transición también??
         // Variables de Condición
         enabler = true;
         fireTimed = 1;
@@ -153,9 +153,25 @@ public class Monitor {
                     waitQueue[(t-1)].await();
                 }
 
+                /*
+                TODO
+                    Hay veces que no se disparan algunas transiciones especificas durante la ejecución:
+                    1. Revisar implementación clase política
+                    2. Tendría que volver a revisar la habilitación estructural después de la revisión temporal
+                    de alguna manera. (|| !petrinet.isEnabled(t) ??)
+                 */
+
                 // Si la transición es temporizada, analizamos su instante de llegada
                 if(petrinet.isTimedTransition(t)) {
+
+                    // Revisamos las condiciones temporales
                     fireTimed = checkTimedTransition(t);
+
+                    // En caso de no cumplirse las condiciones temporales o estructurales, espera
+                    while((fireTimed != 1 || !petrinet.isEnabled(t)) && !isFinished()) {
+                        waitQueue[(t-1)].await();
+                        fireTimed = checkTimedTransition(t);
+                    }
                 }
 
                 // En caso de estar habilitada estructural y temporalmente
@@ -164,16 +180,13 @@ public class Monitor {
                     petrinet.fireTransition(t,log);
                     // Actualizamos los datos del monitor
                     updateMonitorVariables(t);
-                } else if(fireTimed == 2 || fireTimed == 3) { // TODO Revisar caso 2, debería esperar en una cola de condición?
-                    // Caso contrario, sale del monitor
-                    break; // TODO o enabler = false?
                 }
 
                 // Obtenemos las colas de condiciones con procesos esperando
                 waitingProcesses = getWaitingProcesses();
 
                 // Obtenemos el vector de sensibilizadas
-                enabledTransitions = getEnabledTransitions(); // TODO en caso de que fireTimed == 2 deberia recalcular las transiciones habilitadas? -> updateNet(t)?
+                enabledTransitions = getEnabledTransitions();
 
                 // Obtenemos las transiciones listas para dispararse
                 readyProcesses = getReadyProcesses(enabledTransitions, waitingProcesses);
@@ -202,14 +215,8 @@ public class Monitor {
                 }
             }
 
-            // Finalmente, libera el lock
-            if(fireTimed == 2) {
-                // La transición duerme por un tiempo en caso de haber llegado temprano
-                mutex.unlock();
-                coolDown(t);
-            } else {
-                mutex.unlock();
-            }
+            // Finalmente, libera el monitor
+            mutex.unlock();
 
         }
 
@@ -352,6 +359,8 @@ public class Monitor {
     public int[] getEnabledTransitions() {
         // Reiniciamos las transiciones que estaban esperando
         timedTransitions = petrinet.getTimeSensibleTransitions();
+        coolDownQueue.signalAll();
+
         return petrinet.getEnableTransitions();
     }
 
@@ -396,22 +405,36 @@ public class Monitor {
         if(time < transition.getAlfaTime()) { // Llegó ANTES de tiempo
 
             log.logTimed(transition.getName() + " COOL-DOWN - " + time + "[ms] < " + transition.getAlfaTime() + "[ms]\n");
-            // Sale del monitor
-            return 2;
+
+            // La transición espera un tiempo
+            coolDown(t);
+
+            // Volvemos a obtener las transiciones habilitadas en caso de que hayan ocurrido otros disparos
+            petrinet.getTransitionsAbleToFire();
+            if(!petrinet.isEnabled(t)) { // Si se deshabilitó
+                log.logTimed(transition.getName() + " DESHABILITADA después del cool-down\n");
+                // Sale del monitor
+                return 2;
+            }
+
+            // Finalmente va a disparar la transición
+            transition.setTimeStamp();
+            return 1;
 
         } else if(time > transition.getBetaTime()) { // Llegó DESPUÉS de tiempo
 
-            log.logTimed(transition.getName() + " TIME-OUT - " + time + "[ms] > " + transition.getBetaTime() + "[ms]\n");
+            log.logTimed(transition.getName() + " TIME-OUT - " + transition.getBetaTime() + "[ms] > " + time + "[ms]\n");
             // Sale del monitor
             return 3;
 
         } else { // Llegó dentro de su Ventana de Tiempo
             // Si la transición está esperando, sale del monitor
-            if(timedTransitions[(t-1)] == -1) {
+            if(mutex.hasWaiters(coolDownQueue)) {
                 log.logTimed("Transición "+ transition.getName() + " WAITING\n");
-                return 3;
+                return 2;
             } else {
-                log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n"); // TODO Actualizar el timeStamp aca tambn? aunque lo haga un par de lineas despues?
+                log.logTimed("Tiempo "+ transition.getName() + " - " + time + "[ms]\n");
+                transition.setTimeStamp();
                 return 1;
             }
         }
@@ -434,7 +457,8 @@ public class Monitor {
         // Duerme por un tiempo
         try {
             long timeSleep = (transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime()) * (-1);
-            TimeUnit.MILLISECONDS.sleep(timeSleep);
+            coolDownQueue.await(timeSleep, TimeUnit.MILLISECONDS);
+            //TimeUnit.MILLISECONDS.sleep(timeSleep);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

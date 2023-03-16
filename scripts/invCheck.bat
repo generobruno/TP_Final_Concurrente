@@ -1,1 +1,1 @@
-@py scripts/invTCheck.py %*
+@python scripts/invTCheck.py %*

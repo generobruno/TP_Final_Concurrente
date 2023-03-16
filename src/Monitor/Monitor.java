@@ -155,10 +155,9 @@ public class Monitor {
 
                 /*
                 TODO
-                    Hay veces que no se disparan algunas transiciones especificas durante la ejecución:
-                    1. Revisar implementación clase política
-                    2. Tendría que volver a revisar la habilitación estructural después de la revisión temporal
-                    de alguna manera. (|| !petrinet.isEnabled(t) ??)
+                    Hay veces que no se disparan algunas transiciones específicas durante la ejecución:
+                    1. Revisar implementación clase política?
+                    2. Agregar tiempo de ejecución a las transiciones de entrada a una plaza de actividad?
                  */
 
                 // Si la transición es temporizada, analizamos su instante de llegada

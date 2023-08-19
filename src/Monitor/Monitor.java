@@ -116,7 +116,7 @@ public class Monitor {
             waitQueue[i] = mutex.newCondition();
         }
         // Cola de condiciones para transiciones deshabilitadas por tiempo
-        coolDownQueue = mutex.newCondition(); // TODO debería ser 1 condición por transición también??
+        coolDownQueue = mutex.newCondition();
         // Variables de Condición
         enabler = true;
         fireTimed = 1;
@@ -152,13 +152,6 @@ public class Monitor {
                 while(!petrinet.isEnabled(t) && !isFinished()) {
                     waitQueue[(t-1)].await();
                 }
-
-                /*
-                TODO
-                    Hay veces que no se disparan algunas transiciones específicas durante la ejecución:
-                    1. Revisar implementación clase política?
-                    2. Agregar tiempo de ejecución a las transiciones de entrada a una plaza de actividad?
-                 */
 
                 // Si la transición es temporizada, analizamos su instante de llegada
                 if(petrinet.isTimedTransition(t)) {
@@ -456,8 +449,9 @@ public class Monitor {
         // Duerme por un tiempo
         try {
             long timeSleep = (transition.getTimeStamp() + transition.getAlfaTime() - new Date().getTime()) * (-1);
-            coolDownQueue.await(timeSleep, TimeUnit.MILLISECONDS);
-            //TimeUnit.MILLISECONDS.sleep(timeSleep);
+            if(!(coolDownQueue.await(timeSleep, TimeUnit.MILLISECONDS))) {
+                log.logTimed(transition.getName() + " despertó después de tiempo\n");
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -470,14 +464,6 @@ public class Monitor {
      */
     public int getInvFired() {
         return invFired;
-    }
-
-    /**
-     * Método getMaxInv
-     * @return Cantidad de transiciones a disparar
-     */
-    public int getMaxInv() {
-        return maxInv;
     }
 
     /**

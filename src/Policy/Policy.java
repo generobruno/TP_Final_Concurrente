@@ -13,12 +13,8 @@ import java.util.*;
 public class Policy {
     // Monitor con la Red de Petri a controlar
     Monitor monitor;
-    // Cantidad de Transiciones
-    private final int cantT;
     // Carga objetivo para cada transición
     private final int target;
-    // Cantidad de transiciones necesarias para comenzar
-    private final int start;
     // Lista de invariantes
     List<int[]> invariants;
     // Mapa de transiciones repetidas
@@ -33,11 +29,9 @@ public class Policy {
         // Monitor asociado
         monitor = mon;
         // Cantidad de transiciones
-        cantT = mon.getAmountForTrans().length;
+        int cantT = mon.getAmountForTrans().length;
         // Porcentaje objetivo a mantener para las transiciones
-        target = (Math.round((1/(float)cantT) * 100)); // TODO Revisar número
-        // Cantidad de transiciones necesarias para comenzar a ejecutar la política
-        start = (Math.round(monitor.getMaxInv() * 0.1f)); // TODO Revisar número
+        target = (Math.round((1/(float) cantT) * 100));
         // Lista de invariantes de transición
         invariants = inv;
         // Mapa de transiciones repetidas en los invariantes
@@ -57,18 +51,6 @@ public class Policy {
         // Transición a disparar
         int transition = 0;
 
-        // Esperamos a que se disparen suficientes transiciones para realizar los cálculos TODO sacar esto??
-        /*
-        if(totalTransFired < start) {
-            int rnd = new Random().nextInt(ready.length);
-            while(ready[rnd] == 0) {
-                rnd = new Random().nextInt(ready.length);
-            }
-            return ready[rnd];
-        }
-
-         */
-
         // Si solo hay una transición lista, se decide por ella
         int count = 0;
         for (int j : ready) {
@@ -83,7 +65,7 @@ public class Policy {
         }
 
         // Revisamos todas las transiciones listas para obtener la más alejada del "target"
-        float min = target; // TODO Revisar
+        float min = target;
         for(int i = 0; i < ready.length; i++) {
             if(ready[i] != 0) {
                 // Porcentaje de veces que fue disparada una transición hasta el momento
